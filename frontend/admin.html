@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin — Leaderboards</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* ── Admin-specific overrides ── */
+    :root {
+      --admin-accent: #6366f1;
+      --admin-sidebar: 220px;
+    }
+
+    body { overflow-x: hidden; }
+
+    /* AUTH GATE */
+    #auth-gate {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    .auth-gate-icon { font-size: 3rem; }
+    .auth-gate-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.03em; }
+    .auth-gate-sub { color: var(--text-3); font-size: .9rem; max-width: 340px; }
+
+    /* ADMIN LAYOUT */
+    #admin-app { display: none; min-height: 100vh; }
+
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .admin-sidebar {
+      width: var(--admin-sidebar);
+      background: var(--bg-2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 200;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 1.1rem 1.25rem .75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo-main {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+    .sidebar-logo-sub {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-3);
+      margin-top: .1rem;
+    }
+    .sidebar-nav { padding: .75rem .6rem; flex: 1; }
+    .sidebar-section-label {
+      font-size: .6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--text-3);
+      padding: .6rem .65rem .3rem;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .6rem .75rem;
+      border-radius: var(--r);
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: var(--font);
+      width: 100%;
+      text-align: left;
+      transition: all .15s;
+      text-decoration: none;
+      position: relative;
+    }
+    .sidebar-link:hover { background: var(--bg-3); color: var(--text); }
+    .sidebar-link.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
+    .sidebar-link .sidebar-icon { font-size: .95rem; flex-shrink: 0; width: 18px; text-align: center; }
+    .sidebar-badge {
+      margin-left: auto;
+      font-size: .6rem;
+      font-weight: 700;
+      background: var(--red);
+      color: #fff;
+      padding: .12rem .42rem;
+      border-radius: 99px;
+      min-width: 18px;
+      text-align: center;
+    }
+    .sidebar-footer {
+      padding: .75rem .6rem;
+      border-top: 1px solid var(--border);
+    }
+    .admin-user-pill {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .55rem .75rem;
+      border-radius: var(--r);
+      background: var(--bg-3);
+    }
+    .admin-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+    }
+    .admin-username { font-size: .78rem; font-weight: 600; }
+    .admin-role-badge {
+      font-size: .58rem; font-weight: 700;
+      background: var(--accent-glow); color: var(--accent);
+      padding: .1rem .4rem; border-radius: 99px;
+      text-transform: uppercase; letter-spacing: .04em;
+      margin-left: auto;
+    }
+
+    /* MAIN CONTENT */
+    .admin-content {
+      margin-left: var(--admin-sidebar);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR */
+    .admin-topbar {
+      height: 52px;
+      background: var(--surface);
+      backdrop-filter: blur(var(--blur));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .admin-topbar-title {
+      font-size: .9rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .admin-topbar-actions { display: flex; align-items: center; gap: .5rem; }
+
+    /* PANELS */
+    .admin-panel {
+      display: none;
+      padding: 1.5rem;
+      flex: 1;
+      animation: fadeUp .2s ease both;
+    }
+    .admin-panel.active { display: block; }
+
+    /* STAT CARDS ROW */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: .65rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1rem 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+    .kpi-icon { font-size: 1.2rem; margin-bottom: .35rem; }
+    .kpi-val {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+    .kpi-lbl { font-size: .68rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-top: .2rem; }
+    .kpi-delta {
+      font-size: .68rem;
+      font-weight: 600;
+      margin-top: .35rem;
+      display: flex;
+      align-items: center;
+      gap: .2rem;
+    }
+    .kpi-delta.up { color: var(--green); }
+    .kpi-delta.down { color: var(--red); }
+    .kpi-delta.neutral { color: var(--text-3); }
+
+    /* TABLES */
+    .admin-table-wrap {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+    .admin-table-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .85rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .admin-table-hd h3 {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-3);
+    }
+    .admin-table-hd-right { display: flex; gap: .5rem; align-items: center; }
+    .admin-search {
+      padding: .38rem .75rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border-2);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .78rem;
+      width: 200px;
+    }
+    .admin-search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-3);
+      padding: .6rem 1rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    td {
+      font-size: .82rem;
+      padding: .72rem 1rem;
+      border-top: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:first-child td { border-top: none; }
+    tbody tr:hover { background: var(--accent-glow); }
+
+    .td-user { display: flex; align-items: center; gap: .55rem; }
+    .td-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .62rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .td-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .td-name { font-weight: 600; }
+    .td-sub { font-size: .68rem; color: var(--text-3); margin-top: .05rem; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .2rem;
+      font-size: .65rem;
+      font-weight: 700;
+      padding: .18rem .55rem;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .badge-green  { background: rgba(52,199,89,.12);  color: var(--green); }
+    .badge-red    { background: rgba(255,59,48,.1);   color: var(--red); }
+    .badge-yellow { background: rgba(255,214,10,.15); color: #a67c00; }
+    .badge-blue   { background: var(--accent-glow);   color: var(--accent); }
+    .badge-gray   { background: var(--bg-3);           color: var(--text-3); }
+
+    .action-btns { display: flex; gap: .35rem; align-items: center; }
+
+    /* REVIEW CARDS */
+    .review-grid {
+      display: grid;
+      gap: .65rem;
+    }
+    .review-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .review-card-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .review-card-body { flex: 1; }
+    .review-card-title { font-size: .88rem; font-weight: 700; margin-bottom: .2rem; }
+    .review-card-meta { font-size: .72rem; color: var(--text-3); }
+    .review-card-actions { display: flex; gap: .4rem; flex-shrink: 0; }
+
+    /* CHARTS placeholder */
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-bottom: 1.25rem; }
+    .chart-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1rem 1.1rem;
+    }
+    .chart-card-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .75rem;
+    }
+    .chart-card-hd h3 { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); }
+    .chart-canvas-wrap {
+      height: 140px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(to top, var(--accent), var(--accent-2));
+      border-radius: 3px 3px 0 0;
+      opacity: .75;
+      transition: opacity .15s;
+      min-width: 0;
+    }
+    .chart-bar:hover { opacity: 1; }
+    .chart-labels { display: flex; gap: 4px; margin-top: .3rem; }
+    .chart-lbl { flex: 1; text-align: center; font-size: .6rem; color: var(--text-3); min-width: 0; }
+
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .donut {
+      width: 100px; height: 100px;
+      flex-shrink: 0;
+    }
+    .donut-legend { display: flex; flex-direction: column; gap: .35rem; flex: 1; }
+    .donut-legend-item { display: flex; align-items: center; gap: .4rem; font-size: .72rem; }
+    .donut-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ACTIVITY FEED */
+    .activity-feed {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .72rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .activity-item:first-child { border-top: none; }
+    .activity-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: .35rem;
+      flex-shrink: 0;
+    }
+    .activity-text { font-size: .8rem; line-height: 1.4; flex: 1; }
+    .activity-text strong { font-weight: 600; }
+    .activity-time { font-size: .68rem; color: var(--text-3); flex-shrink: 0; margin-top: .15rem; }
+
+    /* TIMEOUT MODAL */
+    .timeout-select-wrap { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .25rem; }
+    .timeout-opt {
+      padding: .4rem .85rem;
+      border-radius: 99px;
+      border: 1px solid var(--border-2);
+      background: var(--bg);
+      color: var(--text-2);
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+    .timeout-opt:hover, .timeout-opt.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* EMPTY STATE */
+    .admin-empty {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--text-3);
+      font-size: .82rem;
+    }
+    .admin-empty-icon { font-size: 2rem; margin-bottom: .5rem; }
+
+    /* TAB BAR */
+    .tab-bar {
+      display: flex;
+      gap: .25rem;
+      background: var(--bg-3);
+      border-radius: var(--r);
+      padding: 3px;
+      margin-bottom: 1rem;
+      width: fit-content;
+    }
+    .tab-btn {
+      padding: .38rem .85rem;
+      border-radius: calc(var(--r) - 3px);
+      font-size: .75rem;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-3);
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+    .tab-btn.active { background: var(--bg-2); color: var(--text); box-shadow: var(--sh-sm); }
+
+    /* RESPONSIVE sidebar */
+    @media (max-width: 768px) {
+      .admin-sidebar { transform: translateX(-100%); transition: transform .25s ease; }
+      .admin-sidebar.open { transform: translateX(0); }
+      .admin-content { margin-left: 0; }
+      .chart-row { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .admin-mobile-menu { display: flex !important; }
+    }
+    .admin-mobile-menu { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ AUTH GATE ═══════════ -->
+<div id="auth-gate">
+  <div class="auth-gate-icon">🔐</div>
+  <div class="auth-gate-title">Admin Access</div>
+  <p class="auth-gate-sub">This page is restricted to authorized administrators. You must be logged in with a whitelisted Discord account.</p>
+  <button class="hero-cta" id="admin-login-btn" style="margin-top:.5rem">
+    <svg width="16" height="13" viewBox="0 0 71 55" fill="currentColor"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a.22.22 0 0 0-.23.11 40.8 40.8 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A37.2 37.2 0 0 0 25.4.51a.23.23 0 0 0-.23-.11A58.3 58.3 0 0 0 10.6 4.9a.21.21 0 0 0-.1.08C1.58 18.2-.95 31.1.3 43.8a.24.24 0 0 0 .09.17 58.8 58.8 0 0 0 17.7 9 .23.23 0 0 0 .25-.08 42 42 0 0 0 3.62-5.9.23.23 0 0 0-.12-.32 38.7 38.7 0 0 1-5.53-2.64.23.23 0 0 1-.02-.38 30.8 30.8 0 0 0 1.1-.86.22.22 0 0 1 .23-.03c11.6 5.3 24.1 5.3 35.5 0a.22.22 0 0 1 .23.03l1.1.86a.23.23 0 0 1-.02.38 36.4 36.4 0 0 1-5.54 2.63.23.23 0 0 0-.12.32 47.1 47.1 0 0 0 3.62 5.9c.06.1.17.13.27.09a58.6 58.6 0 0 0 17.7-8.98.23.23 0 0 0 .1-.17c1.47-15.2-2.47-28-10.4-39.5a.18.18 0 0 0-.1-.09zM23.7 35.9c-3.5 0-6.37-3.2-6.37-7.14 0-3.93 2.82-7.14 6.37-7.14 3.58 0 6.42 3.24 6.37 7.14 0 3.93-2.82 7.14-6.37 7.14zm23.6 0c-3.5 0-6.37-3.2-6.37-7.14 0-3.93 2.82-7.14 6.37-7.14 3.58 0 6.42 3.24 6.37 7.14 0 3.93-2.79 7.14-6.37 7.14z"/></svg>
+    Login with Discord
+  </button>
+  <p style="font-size:.72rem;color:var(--text-3);margin-top:.75rem">Access denied? Contact the platform owner.</p>
+</div>
+
+<!-- ═══════════ ADMIN APP ═══════════ -->
+<div id="admin-app">
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-main">Leaderboards</div>
+        <div class="sidebar-logo-sub">Admin Console</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <button class="sidebar-link active" data-panel="dashboard">
+          <span class="sidebar-icon">📊</span> Dashboard
+        </button>
+        <button class="sidebar-link" data-panel="activity">
+          <span class="sidebar-icon">⚡</span> Live Activity
+        </button>
+
+        <div class="sidebar-section-label" style="margin-top:.5rem">Review</div>
+        <button class="sidebar-link" data-panel="categories">
+          <span class="sidebar-icon">🏷️</span> Categories
+          <span class="sidebar-badge" id="badge-categories">3</span>
+        </button>
+        <button class="sidebar-link" data-panel="reports">
+          <span class="sidebar-icon">🚩</span> Reports
+          <span class="sidebar-badge" id="badge-reports">7</span>
+        </button>
+
+        <div class="sidebar-section-label" style="margin-top:.5rem">Manage</div>
+        <button class="sidebar-link" data-panel="users">
+          <span class="sidebar-icon">👥</span> Users
+        </button>
+        <button class="sidebar-link" data-panel="leaderboards">
+          <span class="sidebar-icon">🏆</span> Leaderboards
+        </button>
+        <button class="sidebar-link" data-panel="options">
+          <span class="sidebar-icon">📋</span> Options
+        </button>
+        <button class="sidebar-link" data-panel="votes">
+          <span class="sidebar-icon">🗳️</span> Votes
+        </button>
+
+        <div class="sidebar-section-label" style="margin-top:.5rem">System</div>
+        <button class="sidebar-link" data-panel="settings">
+          <span class="sidebar-icon">⚙️</span> Settings
+        </button>
+        <a href="index.html" class="sidebar-link">
+          <span class="sidebar-icon">↗</span> View Site
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-user-pill">
+          <div class="admin-avatar" id="admin-avatar-sidebar">A</div>
+          <span class="admin-username" id="admin-username-sidebar">Admin</span>
+          <span class="admin-role-badge">Admin</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="admin-content">
+
+      <!-- TOP BAR -->
+      <div class="admin-topbar">
+        <div style="display:flex;align-items:center;gap:.65rem">
+          <button class="theme-toggle admin-mobile-menu" id="admin-menu-btn">☰</button>
+          <span class="admin-topbar-title" id="panel-title">Dashboard</span>
+        </div>
+        <div class="admin-topbar-actions">
+          <button class="theme-toggle" id="admin-theme-toggle">🌙</button>
+          <button class="btn btn-danger btn-sm btn-pill" id="admin-logout-btn">Sign out</button>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: DASHBOARD ══════ -->
+      <div class="admin-panel active" id="panel-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon">👥</div><div class="kpi-val">12,483</div><div class="kpi-lbl">Total Users</div><div class="kpi-delta up">▲ 8.2% this week</div></div>
+          <div class="kpi-card"><div class="kpi-icon">🏆</div><div class="kpi-val">2,419</div><div class="kpi-lbl">Leaderboards</div><div class="kpi-delta up">▲ 3.1% this week</div></div>
+          <div class="kpi-card"><div class="kpi-icon">🗳️</div><div class="kpi-val">89,321</div><div class="kpi-lbl">Total Votes</div><div class="kpi-delta up">▲ 14.5% this week</div></div>
+          <div class="kpi-card"><div class="kpi-icon">📋</div><div class="kpi-val">41,027</div><div class="kpi-lbl">Options Added</div><div class="kpi-delta up">▲ 6.8% this week</div></div>
+          <div class="kpi-card"><div class="kpi-icon">🚫</div><div class="kpi-val">34</div><div class="kpi-lbl">Banned Users</div><div class="kpi-delta neutral">— no change</div></div>
+          <div class="kpi-card"><div class="kpi-icon">⏱️</div><div class="kpi-val">12</div><div class="kpi-lbl">Timed Out</div><div class="kpi-delta down">▲ 2 new today</div></div>
+          <div class="kpi-card"><div class="kpi-icon">🚩</div><div class="kpi-val">7</div><div class="kpi-lbl">Open Reports</div><div class="kpi-delta down">▲ 7 unresolved</div></div>
+          <div class="kpi-card"><div class="kpi-icon">🏷️</div><div class="kpi-val">3</div><div class="kpi-lbl">Pending Categories</div><div class="kpi-delta neutral">Awaiting review</div></div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-card-hd">
+              <h3>Votes (last 7 days)</h3>
+              <span style="font-size:.7rem;color:var(--text-3)">Total: 12,840</span>
+            </div>
+            <div class="chart-canvas-wrap" id="votes-chart"></div>
+            <div class="chart-labels" id="votes-labels"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-hd">
+              <h3>Signups (last 7 days)</h3>
+              <span style="font-size:.7rem;color:var(--text-3)">Total: 483</span>
+            </div>
+            <div class="chart-canvas-wrap" id="signups-chart"></div>
+            <div class="chart-labels" id="signups-labels"></div>
+          </div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-card-hd"><h3>Top Categories</h3></div>
+            <div class="donut-wrap">
+              <svg class="donut" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--bg-3)" stroke-width="3.5"/>
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="35 65" stroke-dashoffset="25" style="transform-origin:center;transform:rotate(-90deg)"/>
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--accent-2)" stroke-width="3.5" stroke-dasharray="25 75" stroke-dashoffset="-10" style="transform-origin:center;transform:rotate(-90deg)"/>
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--green)" stroke-width="3.5" stroke-dasharray="20 80" stroke-dashoffset="-35" style="transform-origin:center;transform:rotate(-90deg)"/>
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--orange)" stroke-width="3.5" stroke-dasharray="15 85" stroke-dashoffset="-55" style="transform-origin:center;transform:rotate(-90deg)"/>
+              </svg>
+              <div class="donut-legend">
+                <div class="donut-legend-item"><div class="donut-dot" style="background:var(--accent)"></div><span>Entertainment 35%</span></div>
+                <div class="donut-legend-item"><div class="donut-dot" style="background:var(--accent-2)"></div><span>Sports 25%</span></div>
+                <div class="donut-legend-item"><div class="donut-dot" style="background:var(--green)"></div><span>Gaming 20%</span></div>
+                <div class="donut-legend-item"><div class="donut-dot" style="background:var(--orange)"></div><span>Music 15%</span></div>
+                <div class="donut-legend-item"><div class="donut-dot" style="background:var(--bg-3)"></div><span>Other 5%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-hd"><h3>Recent Signups</h3></div>
+            <div style="display:flex;flex-direction:column;gap:.4rem">
+              <div class="td-user" style="padding:.35rem 0;border-bottom:1px solid var(--border)"><div class="td-avatar">K</div><div><div class="td-name" style="font-size:.82rem">kristofer99</div><div class="td-sub">2 min ago · via Discord</div></div><span class="badge badge-green">New</span></div>
+              <div class="td-user" style="padding:.35rem 0;border-bottom:1px solid var(--border)"><div class="td-avatar">M</div><div><div class="td-name" style="font-size:.82rem">mxstudio_</div><div class="td-sub">18 min ago · via Discord</div></div><span class="badge badge-green">New</span></div>
+              <div class="td-user" style="padding:.35rem 0;border-bottom:1px solid var(--border)"><div class="td-avatar">Z</div><div><div class="td-name" style="font-size:.82rem">zenithlayer</div><div class="td-sub">1h ago · via Discord</div></div><span class="badge badge-green">New</span></div>
+              <div class="td-user" style="padding:.35rem 0"><div class="td-avatar">P</div><div><div class="td-name" style="font-size:.82rem">phantom_arc</div><div class="td-sub">2h ago · via Discord</div></div><span class="badge badge-green">New</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: LIVE ACTIVITY ══════ -->
+      <div class="admin-panel" id="panel-activity">
+        <div class="section-hd" style="margin-bottom:1rem"><h2>Live Activity Feed</h2><span class="badge badge-green" style="font-size:.65rem">● Live</span></div>
+        <div class="activity-feed" id="activity-feed">
+          <div class="activity-item"><div class="activity-dot" style="background:var(--green)"></div><div class="activity-text"><strong>kristofer99</strong> voted on "Best FIFA Players 2024"</div><span class="activity-time">just now</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--accent)"></div><div class="activity-text"><strong>mxstudio_</strong> created leaderboard "Top 10 Drake Songs"</div><span class="activity-time">2m ago</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--accent)"></div><div class="activity-text"><strong>zenithlayer</strong> added option "Kendrick Lamar" to "Best Rappers"</div><span class="activity-time">5m ago</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--red)"></div><div class="activity-text"><strong>anon_user</strong> reported option in "Best Anime" — reason: spam</div><span class="activity-time">12m ago</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--green)"></div><div class="activity-text"><strong>phantom_arc</strong> joined the platform</div><span class="activity-time">18m ago</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--orange)"></div><div class="activity-text"><strong>System</strong> auto-flagged suspicious vote pattern on "Best Games"</div><span class="activity-time">22m ago</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--accent)"></div><div class="activity-text"><strong>user_7743</strong> voted on "Most Iconic Moments in Football"</div><span class="activity-time">25m ago</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--green)"></div><div class="activity-text"><strong>nova_beats</strong> joined the platform</div><span class="activity-time">31m ago</span></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--accent)"></div><div class="activity-text"><strong>admin</strong> approved category "K-Pop"</div><span class="activity-time">45m ago</span></div>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: CATEGORIES ══════ -->
+      <div class="admin-panel" id="panel-categories">
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="cat-pending">Pending (3)</button>
+          <button class="tab-btn" data-tab="cat-approved">Approved</button>
+          <button class="tab-btn" data-tab="cat-rejected">Rejected</button>
+        </div>
+
+        <div id="cat-pending">
+          <div class="review-grid">
+            <div class="review-card">
+              <div class="review-card-icon">🎮</div>
+              <div class="review-card-body">
+                <div class="review-card-title">Video Games</div>
+                <div class="review-card-meta">Suggested by <strong>mxstudio_</strong> · 2h ago — "For game rankings, best titles, etc."</div>
+              </div>
+              <div class="review-card-actions">
+                <button class="btn btn-sm btn-ghost" onclick="rejectCategory(this)">Reject</button>
+                <button class="btn btn-sm btn-primary" onclick="approveCategory(this,'Video Games')">Approve</button>
+              </div>
+            </div>
+            <div class="review-card">
+              <div class="review-card-icon">🍕</div>
+              <div class="review-card-body">
+                <div class="review-card-title">Food & Restaurants</div>
+                <div class="review-card-meta">Suggested by <strong>foodie_42</strong> · 5h ago — "People want to rank restaurants and dishes"</div>
+              </div>
+              <div class="review-card-actions">
+                <button class="btn btn-sm btn-ghost" onclick="rejectCategory(this)">Reject</button>
+                <button class="btn btn-sm btn-primary" onclick="approveCategory(this,'Food & Restaurants')">Approve</button>
+              </div>
+            </div>
+            <div class="review-card">
+              <div class="review-card-icon">🌍</div>
+              <div class="review-card-body">
+                <div class="review-card-title">Travel & Places</div>
+                <div class="review-card-meta">Suggested by <strong>nomad_k</strong> · 1d ago — "Best destinations, cities, beaches, etc."</div>
+              </div>
+              <div class="review-card-actions">
+                <button class="btn btn-sm btn-ghost" onclick="rejectCategory(this)">Reject</button>
+                <button class="btn btn-sm btn-primary" onclick="approveCategory(this,'Travel & Places')">Approve</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="cat-approved" style="display:none">
+          <div class="admin-table-wrap">
+            <table>
+              <thead><tr><th>Category</th><th>Leaderboards</th><th>Approved By</th><th>Date</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Entertainment</td><td>412</td><td>admin</td><td>Jan 2025</td><td><button class="btn btn-sm btn-danger" onclick="showToast('Category removed','success')">Remove</button></td></tr>
+                <tr><td>Sports</td><td>298</td><td>admin</td><td>Jan 2025</td><td><button class="btn btn-sm btn-danger" onclick="showToast('Category removed','success')">Remove</button></td></tr>
+                <tr><td>Music</td><td>187</td><td>admin</td><td>Jan 2025</td><td><button class="btn btn-sm btn-danger" onclick="showToast('Category removed','success')">Remove</button></td></tr>
+                <tr><td>Gaming</td><td>156</td><td>admin</td><td>Feb 2025</td><td><button class="btn btn-sm btn-danger" onclick="showToast('Category removed','success')">Remove</button></td></tr>
+                <tr><td>K-Pop</td><td>43</td><td>admin</td><td>Mar 2025</td><td><button class="btn btn-sm btn-danger" onclick="showToast('Category removed','success')">Remove</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="cat-rejected" style="display:none">
+          <div class="admin-empty"><div class="admin-empty-icon">✓</div>No rejected categories.</div>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: REPORTS ══════ -->
+      <div class="admin-panel" id="panel-reports">
+        <div class="admin-table-wrap">
+          <div class="admin-table-hd">
+            <h3>Flagged Content (7)</h3>
+            <div class="admin-table-hd-right">
+              <select class="admin-search" style="width:auto">
+                <option>All types</option>
+                <option>Leaderboard</option>
+                <option>Option</option>
+                <option>Vote</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Content</th><th>Type</th><th>Reason</th><th>Reported By</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="td-name">Offensive option in "Best Rappers"</div><div class="td-sub">Option ID #4821</div></td>
+                <td><span class="badge badge-yellow">Option</span></td>
+                <td>Hate speech</td>
+                <td>user_7743</td>
+                <td>2h ago</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="showToast('Dismissed','info')">Dismiss</button>
+                  <button class="btn btn-sm btn-danger" onclick="showToast('Content removed','success')">Remove</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="td-name">Spam leaderboard "CLICK HERE"</div><div class="td-sub">LB ID #892</div></td>
+                <td><span class="badge badge-blue">Leaderboard</span></td>
+                <td>Spam</td>
+                <td>moderator_x</td>
+                <td>3h ago</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="showToast('Dismissed','info')">Dismiss</button>
+                  <button class="btn btn-sm btn-danger" onclick="showToast('Leaderboard removed','success')">Remove</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="td-name">Suspicious vote cluster</div><div class="td-sub">Vote IDs #12001–12050</div></td>
+                <td><span class="badge badge-red">Vote Fraud</span></td>
+                <td>Bot activity</td>
+                <td>System</td>
+                <td>4h ago</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="showToast('Dismissed','info')">Dismiss</button>
+                  <button class="btn btn-sm btn-danger" onclick="showToast('Votes purged','success')">Purge Votes</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: USERS ══════ -->
+      <div class="admin-panel" id="panel-users">
+        <div class="admin-table-wrap">
+          <div class="admin-table-hd">
+            <h3>All Users</h3>
+            <div class="admin-table-hd-right">
+              <input class="admin-search" type="text" placeholder="Search users…" oninput="filterTable(this,'users-tbody')"/>
+              <select class="admin-search" style="width:auto">
+                <option>All status</option>
+                <option>Active</option>
+                <option>Banned</option>
+                <option>Timed out</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>User</th><th>Discord ID</th><th>Reputation</th><th>Votes</th><th>LBs</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="users-tbody">
+              <tr>
+                <td><div class="td-user"><div class="td-avatar">K</div><div><div class="td-name">kristofer99</div></div></div></td>
+                <td style="color:var(--text-3);font-size:.75rem">280192837465</td>
+                <td>1,240</td><td>342</td><td>12</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td style="color:var(--text-3);font-size:.75rem">Jan 2025</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="openTimeout('kristofer99')">Timeout</button>
+                  <button class="btn btn-sm btn-danger" onclick="openBan('kristofer99')">Ban</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="td-user"><div class="td-avatar">M</div><div><div class="td-name">mxstudio_</div></div></div></td>
+                <td style="color:var(--text-3);font-size:.75rem">190283746512</td>
+                <td>892</td><td>201</td><td>8</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td style="color:var(--text-3);font-size:.75rem">Feb 2025</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="openTimeout('mxstudio_')">Timeout</button>
+                  <button class="btn btn-sm btn-danger" onclick="openBan('mxstudio_')">Ban</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="td-user"><div class="td-avatar">B</div><div><div class="td-name">bad_actor_77</div></div></div></td>
+                <td style="color:var(--text-3);font-size:.75rem">384756192038</td>
+                <td>-50</td><td>0</td><td>2</td>
+                <td><span class="badge badge-red">Banned</span></td>
+                <td style="color:var(--text-3);font-size:.75rem">Mar 2025</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-primary" onclick="showToast('User unbanned','success')">Unban</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="td-user"><div class="td-avatar">Z</div><div><div class="td-name">zenithlayer</div></div></div></td>
+                <td style="color:var(--text-3);font-size:.75rem">102938475610</td>
+                <td>340</td><td>88</td><td>3</td>
+                <td><span class="badge badge-yellow">Timed out</span></td>
+                <td style="color:var(--text-3);font-size:.75rem">Mar 2025</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="showToast('Timeout lifted','success')">Lift</button>
+                  <button class="btn btn-sm btn-danger" onclick="openBan('zenithlayer')">Ban</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: LEADERBOARDS ══════ -->
+      <div class="admin-panel" id="panel-leaderboards">
+        <div class="admin-table-wrap">
+          <div class="admin-table-hd">
+            <h3>All Leaderboards</h3>
+            <input class="admin-search" type="text" placeholder="Search…" oninput="filterTable(this,'lb-tbody')"/>
+          </div>
+          <table>
+            <thead><tr><th>Title</th><th>Creator</th><th>Category</th><th>Options</th><th>Votes</th><th>Created</th><th>Actions</th></tr></thead>
+            <tbody id="lb-tbody">
+              <tr>
+                <td><div class="td-name">Best FIFA Players 2024</div></td>
+                <td>kristofer99</td>
+                <td><span class="badge badge-blue">Sports</span></td>
+                <td>24</td><td>1,240</td>
+                <td style="color:var(--text-3);font-size:.75rem">Jan 2025</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="showToast('Leaderboard hidden','info')">Hide</button>
+                  <button class="btn btn-sm btn-danger" onclick="confirmRemove('leaderboard')">Remove</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="td-name">Top 10 Drake Songs</div></td>
+                <td>mxstudio_</td>
+                <td><span class="badge badge-blue">Music</span></td>
+                <td>10</td><td>892</td>
+                <td style="color:var(--text-3);font-size:.75rem">Feb 2025</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="showToast('Leaderboard hidden','info')">Hide</button>
+                  <button class="btn btn-sm btn-danger" onclick="confirmRemove('leaderboard')">Remove</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="td-name">Best Anime of All Time</div></td>
+                <td>zenithlayer</td>
+                <td><span class="badge badge-blue">Entertainment</span></td>
+                <td>48</td><td>3,102</td>
+                <td style="color:var(--text-3);font-size:.75rem">Mar 2025</td>
+                <td class="action-btns">
+                  <button class="btn btn-sm btn-ghost" onclick="showToast('Leaderboard hidden','info')">Hide</button>
+                  <button class="btn btn-sm btn-danger" onclick="confirmRemove('leaderboard')">Remove</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: OPTIONS ══════ -->
+      <div class="admin-panel" id="panel-options">
+        <div class="admin-table-wrap">
+          <div class="admin-table-hd">
+            <h3>All Options</h3>
+            <input class="admin-search" type="text" placeholder="Search…"/>
+          </div>
+          <table>
+            <thead><tr><th>Option</th><th>Leaderboard</th><th>Added By</th><th>Votes</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="td-name">Lionel Messi</div></td>
+                <td>Best FIFA Players 2024</td>
+                <td>kristofer99</td>
+                <td>412</td>
+                <td class="action-btns"><button class="btn btn-sm btn-danger" onclick="confirmRemove('option')">Remove</button></td>
+              </tr>
+              <tr>
+                <td><div class="td-name">Fullmetal Alchemist</div></td>
+                <td>Best Anime of All Time</td>
+                <td>zenithlayer</td>
+                <td>891</td>
+                <td class="action-btns"><button class="btn btn-sm btn-danger" onclick="confirmRemove('option')">Remove</button></td>
+              </tr>
+              <tr>
+                <td><div class="td-name">SPAM CONTENT HERE</div></td>
+                <td>Best FIFA Players 2024</td>
+                <td>bad_actor_77</td>
+                <td>0</td>
+                <td class="action-btns"><span class="badge badge-red" style="margin-right:.35rem">Flagged</span><button class="btn btn-sm btn-danger" onclick="confirmRemove('option')">Remove</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: VOTES ══════ -->
+      <div class="admin-panel" id="panel-votes">
+        <div class="admin-table-wrap">
+          <div class="admin-table-hd">
+            <h3>Vote Log</h3>
+            <input class="admin-search" type="text" placeholder="Search by user or leaderboard…"/>
+          </div>
+          <table>
+            <thead><tr><th>User</th><th>Voted For</th><th>Leaderboard</th><th>Weighted Score</th><th>Time</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>kristofer99</td>
+                <td>Lionel Messi</td>
+                <td>Best FIFA Players 2024</td>
+                <td>1.0</td>
+                <td style="color:var(--text-3);font-size:.75rem">2 min ago</td>
+                <td><button class="btn btn-sm btn-danger" onclick="confirmRemove('vote')">Remove</button></td>
+              </tr>
+              <tr>
+                <td>mxstudio_</td>
+                <td>Attack on Titan</td>
+                <td>Best Anime of All Time</td>
+                <td>1.0</td>
+                <td style="color:var(--text-3);font-size:.75rem">18 min ago</td>
+                <td><button class="btn btn-sm btn-danger" onclick="confirmRemove('vote')">Remove</button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--red)">bad_actor_77 ⚠</td>
+                <td>SPAM CONTENT</td>
+                <td>Best FIFA Players 2024</td>
+                <td>0.0</td>
+                <td style="color:var(--text-3);font-size:.75rem">1h ago</td>
+                <td><button class="btn btn-sm btn-danger" onclick="confirmRemove('vote')">Remove</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ PANEL: SETTINGS ══════ -->
+      <div class="admin-panel" id="panel-settings">
+        <div style="max-width:520px;display:flex;flex-direction:column;gap:.65rem">
+          <div class="admin-table-wrap" style="padding:1.25rem">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:.85rem">Access Control</div>
+            <div class="form-group" style="margin-bottom:.85rem">
+              <label class="form-label">Whitelisted Admin Discord IDs</label>
+              <textarea class="form-input" rows="4" placeholder="One Discord ID per line&#10;280192837465&#10;190283746512">280192837465</textarea>
+              <span class="form-hint">Only these Discord IDs can access this admin panel.</span>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showToast('Whitelist saved','success')">Save Whitelist</button>
+          </div>
+
+          <div class="admin-table-wrap" style="padding:1.25rem">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:.85rem">Platform Settings</div>
+            <div class="form-group" style="margin-bottom:.75rem">
+              <label class="form-label">Maintenance Mode</label>
+              <div style="display:flex;align-items:center;gap:.75rem;margin-top:.25rem">
+                <button class="btn btn-ghost btn-sm" id="maintenance-off" onclick="setMaintenance(false)" style="background:var(--bg-3)">Off</button>
+                <button class="btn btn-ghost btn-sm" id="maintenance-on" onclick="setMaintenance(true)">On</button>
+                <span style="font-size:.72rem;color:var(--text-3)">Prevents non-admin access</span>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:.75rem">
+              <label class="form-label">Require Login to View</label>
+              <div style="display:flex;align-items:center;gap:.75rem;margin-top:.25rem">
+                <button class="btn btn-ghost btn-sm" style="background:var(--bg-3)">No</button>
+                <button class="btn btn-ghost btn-sm">Yes</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Leaderboards Per User</label>
+              <input type="number" class="form-input" value="20" style="width:120px"/>
+            </div>
+            <button class="btn btn-primary btn-sm" style="margin-top:.85rem" onclick="showToast('Settings saved','success')">Save Settings</button>
+          </div>
+
+          <div class="admin-table-wrap" style="padding:1.25rem">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:.85rem">Danger Zone</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+              <button class="btn btn-danger btn-sm" onclick="adminConfirm('Purge all votes?','This will delete every vote in the database. This cannot be undone.').then(()=>showToast('All votes purged','success'))">Purge All Votes</button>
+              <button class="btn btn-danger btn-sm" onclick="adminConfirm('Remove all leaderboards?','This will delete every leaderboard. This cannot be undone.').then(()=>showToast('All leaderboards removed','success'))">Remove All Leaderboards</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-layout -->
+</div><!-- /admin-app -->
+
+<!-- TIMEOUT MODAL -->
+<div class="modal" id="timeout-modal">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-hd">
+      <h2 class="modal-title">Timeout <em>User</em></h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text-2);margin-bottom:.85rem">Timeout <strong id="timeout-username">user</strong> for:</p>
+      <div class="timeout-select-wrap" id="timeout-opts">
+        <button class="timeout-opt selected" data-val="1h">1 hour</button>
+        <button class="timeout-opt" data-val="6h">6 hours</button>
+        <button class="timeout-opt" data-val="24h">24 hours</button>
+        <button class="timeout-opt" data-val="7d">7 days</button>
+        <button class="timeout-opt" data-val="30d">30 days</button>
+      </div>
+      <div class="form-actions" style="margin-top:1rem">
+        <button class="btn btn-ghost" onclick="closeAdminModal('timeout-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="applyTimeout()">Apply Timeout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BAN MODAL -->
+<div class="modal" id="ban-modal">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-hd">
+      <h2 class="modal-title">Ban <em>User</em></h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text-2);margin-bottom:.85rem">Permanently ban <strong id="ban-username">user</strong>?</p>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Reason</label>
+        <select class="form-input" id="ban-reason">
+          <option>Spam / Bot activity</option>
+          <option>Hate speech</option>
+          <option>Vote manipulation</option>
+          <option>Harassment</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes (internal)</label>
+        <textarea class="form-input" rows="2" placeholder="Optional admin note…"></textarea>
+      </div>
+      <div class="form-actions" style="margin-top:1rem">
+        <button class="btn btn-ghost" onclick="closeAdminModal('ban-modal')">Cancel</button>
+        <button class="btn btn-danger" onclick="applyBan()">Ban User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALERT MODAL -->
+<div class="modal" id="admin-alert-modal">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-alert-body">
+      <div class="alert-icon-wrap" id="adm-alert-icon" style="background:var(--accent-glow);color:var(--accent)">!</div>
+      <div class="alert-ttl" id="adm-alert-ttl">Notice</div>
+      <div class="alert-msg" id="adm-alert-msg"></div>
+      <div class="alert-actions"><button class="btn btn-primary btn-sm btn-pill" id="adm-alert-ok">OK</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal" id="admin-confirm-modal">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-alert-body">
+      <div class="alert-icon-wrap" style="background:rgba(255,59,48,.1);color:var(--red)">⚠</div>
+      <div class="alert-ttl" id="adm-confirm-ttl">Confirm</div>
+      <div class="alert-msg" id="adm-confirm-msg"></div>
+      <div class="alert-actions">
+        <button class="btn btn-ghost btn-sm btn-pill" id="adm-confirm-cancel">Cancel</button>
+        <button class="btn btn-danger btn-sm btn-pill" id="adm-confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+<script>
+/* ══════════════════════════════
+   ADMIN ENGINE
+══════════════════════════════ */
+
+const API_BASE = '/api';
+
+/* ── Theme ── */
+const savedTheme = localStorage.getItem('lb-theme');
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+if (savedTheme === 'dark' || (!savedTheme && prefersDark)) document.documentElement.setAttribute('data-theme','dark');
+(function(){ const d = document.documentElement.getAttribute('data-theme')==='dark'; document.getElementById('admin-theme-toggle').textContent = d?'☀️':'🌙'; })();
+document.getElementById('admin-theme-toggle').addEventListener('click', () => {
+  const d = document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme', d?'light':'dark');
+  localStorage.setItem('lb-theme', d?'light':'dark');
+  document.getElementById('admin-theme-toggle').textContent = d?'🌙':'☀️';
+});
+
+/* ── Auth gate ── */
+async function adminApi(endpoint, options = {}) {
+  const token = localStorage.getItem('authToken');
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const csrf = localStorage.getItem('lb_csrf_token');
+  if (csrf) headers['X-CSRF-Token'] = csrf;
+
+  const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
+    throw new Error(error.detail || 'Request failed');
+  }
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+async function checkAdminAuth() {
+  try {
+    const admin = await adminApi('/admin/me');
+    grantAdminAccess(admin);
+  } catch (error) {
+    document.getElementById('auth-gate').style.display = 'flex';
+    document.getElementById('admin-app').style.display = 'none';
+  }
+}
+
+function grantAdminAccess(user) {
+  document.getElementById('auth-gate').style.display = 'none';
+  document.getElementById('admin-app').style.display = 'block';
+  document.getElementById('admin-username-sidebar').textContent = user.username || 'Admin';
+  // Init charts
+  initCharts();
+}
+
+document.getElementById('admin-login-btn').addEventListener('click', () => {
+  window.location.href = '/api/auth/discord/login';
+});
+
+document.getElementById('admin-logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('lb_csrf_token');
+  document.getElementById('auth-gate').style.display = 'flex';
+  document.getElementById('admin-app').style.display = 'none';
+});
+
+checkAdminAuth();
+
+/* ── Sidebar navigation ── */
+const panelTitles = {
+  dashboard:'Dashboard', activity:'Live Activity', categories:'Category Review',
+  reports:'Reports & Flags', users:'User Management', leaderboards:'Leaderboard Management',
+  options:'Options Management', votes:'Vote Log', settings:'Settings'
+};
+
+document.querySelectorAll('.sidebar-link[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+    document.getElementById('panel-title').textContent = panelTitles[btn.dataset.panel] || '';
+    closeSidebar();
+  });
+});
+
+/* ── Mobile sidebar ── */
+document.getElementById('admin-menu-btn').addEventListener('click', () => {
+  document.getElementById('admin-sidebar').classList.toggle('open');
+});
+function closeSidebar() { document.getElementById('admin-sidebar').classList.remove('open'); }
+
+/* ── Tab bars ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const parent = btn.closest('.admin-panel');
+    parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const target = btn.dataset.tab;
+    parent.querySelectorAll('[id]').forEach(el => {
+      if (['cat-pending','cat-approved','cat-rejected'].includes(el.id)) {
+        el.style.display = el.id === target ? 'block' : 'none';
+      }
+    });
+  });
+});
+
+/* ── Modal helpers ── */
+function openAdminModal(id) { const m=document.getElementById(id); if(m){m.classList.add('active');document.body.style.overflow='hidden';} }
+function closeAdminModal(id) { const m=document.getElementById(id); if(m){m.classList.remove('active');document.body.style.overflow='';} }
+document.addEventListener('click', e => { if(e.target.classList.contains('modal')){e.target.classList.remove('active');document.body.style.overflow='';} });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){document.querySelectorAll('.modal.active').forEach(m=>{m.classList.remove('active');});document.body.style.overflow='';} });
+document.querySelectorAll('.modal-close').forEach(btn => { btn.addEventListener('click', ()=>{ const m=btn.closest('.modal'); if(m){m.classList.remove('active');document.body.style.overflow='';} }); });
+document.getElementById('adm-alert-ok').addEventListener('click', ()=>closeAdminModal('admin-alert-modal'));
+
+/* ── Admin Alert ── */
+function showAdminAlert(title, msg, type='info') {
+  document.getElementById('adm-alert-ttl').textContent = title;
+  document.getElementById('adm-alert-msg').textContent = msg;
+  const iw = document.getElementById('adm-alert-icon');
+  const styles = {error:'background:rgba(255,59,48,.1);color:var(--red)', success:'background:rgba(52,199,89,.12);color:var(--green)', info:'background:var(--accent-glow);color:var(--accent)'};
+  iw.style.cssText = styles[type]||styles.info;
+  iw.textContent = {error:'✕',success:'✓',info:'!'}[type]||'!';
+  openAdminModal('admin-alert-modal');
+}
+
+/* ── Admin Confirm ── */
+function adminConfirm(title, msg) {
+  return new Promise((res,rej) => {
+    document.getElementById('adm-confirm-ttl').textContent = title;
+    document.getElementById('adm-confirm-msg').textContent = msg;
+    window._aRes=res; window._aRej=rej;
+    openAdminModal('admin-confirm-modal');
+  });
+}
+document.getElementById('adm-confirm-cancel').addEventListener('click', ()=>{ closeAdminModal('admin-confirm-modal'); if(window._aRej) window._aRej(); });
+document.getElementById('adm-confirm-ok').addEventListener('click', ()=>{ closeAdminModal('admin-confirm-modal'); if(window._aRes) window._aRes(); });
+
+/* ── Toast ── */
+function showToast(msg, type='info', ms=3000) {
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className='toast toast-'+type;
+  t.innerHTML=`<span class="toast-icon">${{success:'✓',error:'✕',info:'ℹ'}[type]||'ℹ'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('toast-show'));
+  setTimeout(()=>{ t.classList.remove('toast-show'); t.addEventListener('transitionend',()=>t.remove()); }, ms);
+}
+
+/* ── User actions ── */
+function openTimeout(username) {
+  document.getElementById('timeout-username').textContent = username;
+  openAdminModal('timeout-modal');
+}
+document.querySelectorAll('.timeout-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.timeout-opt').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+});
+function applyTimeout() {
+  const dur = document.querySelector('.timeout-opt.selected')?.dataset.val||'1h';
+  const user = document.getElementById('timeout-username').textContent;
+  closeAdminModal('timeout-modal');
+  showToast(`${user} timed out for ${dur}`, 'success');
+}
+
+function openBan(username) {
+  document.getElementById('ban-username').textContent = username;
+  openAdminModal('ban-modal');
+}
+function applyBan() {
+  const user = document.getElementById('ban-username').textContent;
+  closeAdminModal('ban-modal');
+  showToast(`${user} has been banned`, 'success');
+}
+
+/* ── Category actions ── */
+function approveCategory(btn, name) {
+  const card = btn.closest('.review-card');
+  card.style.opacity='0'; card.style.transform='translateY(-4px)'; card.style.transition='all .25s';
+  setTimeout(()=>card.remove(), 250);
+  showToast(`"${name}" category approved ✓`, 'success');
+  const badge = document.getElementById('badge-categories');
+  if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent||0)-1);
+}
+function rejectCategory(btn) {
+  const card = btn.closest('.review-card');
+  card.style.opacity='0'; card.style.transition='all .25s';
+  setTimeout(()=>card.remove(), 250);
+  showToast('Category rejected', 'info');
+  const badge = document.getElementById('badge-categories');
+  if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent||0)-1);
+}
+
+/* ── Content removal ── */
+function confirmRemove(type) {
+  adminConfirm(`Remove this ${type}?`, `This action cannot be undone. The ${type} will be permanently deleted.`)
+    .then(() => showToast(`${type.charAt(0).toUpperCase()+type.slice(1)} removed`, 'success'));
+}
+
+/* ── Table search filter ── */
+function filterTable(input, tbodyId) {
+  const q = input.value.toLowerCase();
+  const rows = document.getElementById(tbodyId)?.querySelectorAll('tr')||[];
+  rows.forEach(row => { row.style.display = row.textContent.toLowerCase().includes(q)?'':'none'; });
+}
+
+/* ── Maintenance ── */
+function setMaintenance(on) {
+  document.getElementById('maintenance-on').style.background = on?'var(--red)':'';
+  document.getElementById('maintenance-on').style.color = on?'#fff':'';
+  document.getElementById('maintenance-off').style.background = !on?'var(--bg-3)':'';
+  showToast(`Maintenance mode ${on?'enabled':'disabled'}`, on?'info':'success');
+}
+
+/* ── Charts ── */
+function initCharts() {
+  const votesData  = [1200,980,1540,880,1320,1900,1020];
+  const signupData = [42,68,55,90,73,88,67];
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  renderBarChart('votes-chart','votes-labels', votesData, days, Math.max(...votesData));
+  renderBarChart('signups-chart','signups-labels', signupData, days, Math.max(...signupData));
+}
+
+function renderBarChart(chartId, lblId, data, labels, maxVal) {
+  const chart = document.getElementById(chartId);
+  const lbls  = document.getElementById(lblId);
+  if (!chart) return;
+  chart.innerHTML=''; if(lbls) lbls.innerHTML='';
+  data.forEach((v,i)=>{
+    const bar=document.createElement('div');
+    bar.className='chart-bar';
+    bar.style.height = ((v/maxVal)*100)+'%';
+    bar.title = `${labels[i]}: ${v}`;
+    chart.appendChild(bar);
+    if(lbls){ const l=document.createElement('div'); l.className='chart-lbl'; l.textContent=labels[i]; lbls.appendChild(l); }
+  });
+}
+
+/* ── Simulate live feed ── */
+const feedItems = [
+  ['▲ New vote on "Best Anime"','green'],
+  ['🏆 New leaderboard created','accent'],
+  ['👤 New user joined','green'],
+  ['🚩 New report submitted','red'],
+  ['🗳️ Vote batch on "Best Players"','accent'],
+];
+setInterval(() => {
+  if (!document.getElementById('panel-activity').classList.contains('active')) return;
+  const feed = document.getElementById('activity-feed');
+  if (!feed) return;
+  const [text, color] = feedItems[Math.floor(Math.random()*feedItems.length)];
+  const item=document.createElement('div'); item.className='activity-item';
+  item.innerHTML=`<div class="activity-dot" style="background:var(--${color==='accent'?'accent':color})"></div><div class="activity-text">${text}</div><span class="activity-time">just now</span>`;
+  feed.insertBefore(item, feed.firstChild);
+  if(feed.children.length>20) feed.removeChild(feed.lastChild);
+}, 5000);
+</script>
+</body>
+</html>

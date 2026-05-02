@@ -1,0 +1,2335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Leaderboards</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles-patch.css" />
+    <link rel="stylesheet" href="/styles-helper.css" />
+    <link rel="stylesheet" href="/styles-update.css" />
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════
+     NAV
+═══════════════════════════════════════ -->
+    <nav class="nav">
+      <div class="nav-container">
+        <!-- Logo -->
+        <a href="#" class="nav-logo" data-page="home" id="nav-logo-link"
+          ><em>Leaderboards</em></a
+        >
+
+        <!-- Desktop nav links -->
+        <div class="nav-links">
+          <a href="#" class="nav-link" data-page="trending">Trending</a>
+          <a href="#" class="nav-link" data-page="search">Search</a>
+          <a
+            href="#"
+            class="nav-link"
+            id="profile-link"
+            data-page="profile"
+            style="display: none"
+            >Profile</a
+          >
+          <a
+            href="#"
+            class="nav-link"
+            id="admin-link"
+            data-page="admin"
+            style="display: none"
+            >Admin</a
+          >
+        </div>
+
+        <div class="nav-right">
+          <!-- Create button (logged in) -->
+          <button
+            class="btn btn-primary btn-sm"
+            id="nav-create-btn"
+            style="display: none"
+          >
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M5 1v8M1 5h8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            Create
+          </button>
+
+          <!-- Theme toggle -->
+          <button
+            class="theme-toggle"
+            id="theme-toggle"
+            title="Toggle dark mode"
+            aria-label="Toggle dark mode"
+          >
+            🌙
+          </button>
+
+          <!-- Login button (logged out) -->
+          <button class="btn btn-ghost btn-sm" id="login-btn">
+            <svg
+              width="14"
+              height="11"
+              viewBox="0 0 71 55"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a.22.22 0 0 0-.23.11 40.8 40.8 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A37.2 37.2 0 0 0 25.4.51a.23.23 0 0 0-.23-.11A58.3 58.3 0 0 0 10.6 4.9a.21.21 0 0 0-.1.08C1.58 18.2-.95 31.1.3 43.8a.24.24 0 0 0 .09.17 58.8 58.8 0 0 0 17.7 9 .23.23 0 0 0 .25-.08 42 42 0 0 0 3.62-5.9.23.23 0 0 0-.12-.32 38.7 38.7 0 0 1-5.53-2.64.23.23 0 0 1-.02-.38 30.8 30.8 0 0 0 1.1-.86.22.22 0 0 1 .23-.03c11.6 5.3 24.1 5.3 35.5 0a.22.22 0 0 1 .23.03l1.1.86a.23.23 0 0 1-.02.38 36.4 36.4 0 0 1-5.54 2.63.23.23 0 0 0-.12.32 47.1 47.1 0 0 0 3.62 5.9c.06.1.17.13.27.09a58.6 58.6 0 0 0 17.7-8.98.23.23 0 0 0 .1-.17c1.47-15.2-2.47-28-10.4-39.5a.18.18 0 0 0-.1-.09z"
+              />
+            </svg>
+            Login with Discord
+          </button>
+
+          <!-- User pill (logged in) -->
+          <a
+            href="#"
+            class="nav-user"
+            id="nav-user-pill"
+            style="display: none"
+            data-page="profile"
+          >
+            <div class="nav-user-avatar" id="nav-user-avatar">J</div>
+            <span class="nav-user-name" id="nav-user-name">User</span>
+          </a>
+
+          <!-- Mobile hamburger -->
+          <button
+            class="nav-hamburger"
+            id="nav-hamburger"
+            aria-label="Open menu"
+          >
+            <svg
+              width="16"
+              height="12"
+              viewBox="0 0 16 12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M0 1h16M0 6h16M0 11h16"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════
+     MOBILE DRAWER
+═══════════════════════════════════════ -->
+    <div class="nav-drawer" id="nav-drawer">
+      <div class="nav-drawer-backdrop" id="drawer-backdrop"></div>
+      <div class="nav-drawer-panel">
+        <button
+          class="nav-drawer-close"
+          id="drawer-close"
+          aria-label="Close menu"
+        >
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M1 1l8 8M9 1l-8 8"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+
+        <a href="#" class="nav-drawer-link" data-page="trending">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+          </svg>
+          Trending
+        </a>
+        <a href="#" class="nav-drawer-link" data-page="search">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Search
+        </a>
+        <a
+          href="#"
+          class="nav-drawer-link"
+          data-page="profile"
+          id="drawer-profile-link"
+          style="display: none"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Profile
+        </a>
+        <a
+          href="#"
+          class="nav-drawer-link"
+          data-page="admin"
+          id="drawer-admin-link"
+          style="display: none"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M21 12h-2M5 12H3M19.07 19.07l-1.41-1.41M5.34 5.34l-1.41-1.41M12 21v-2M12 5V3"
+            />
+          </svg>
+          Admin
+        </a>
+
+        <div class="nav-drawer-sep"></div>
+        <button
+          class="nav-drawer-link"
+          id="drawer-create-btn"
+          style="display: none"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 10 10"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 1v8M1 5h8"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          Create Leaderboard
+        </button>
+        <div class="nav-drawer-sep"></div>
+
+        <a href="#" class="nav-drawer-link" data-page="credits">About</a>
+        <a href="#" class="nav-drawer-link" data-page="privacy">Privacy</a>
+        <a href="#" class="nav-drawer-link" data-page="tos">Terms</a>
+
+        <div class="nav-drawer-sep"></div>
+        <button
+          class="nav-drawer-link"
+          id="drawer-logout-btn"
+          style="display: none"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sign out
+        </button>
+        <button class="nav-drawer-link" id="drawer-login-btn">
+          <svg
+            width="14"
+            height="11"
+            viewBox="0 0 71 55"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a.22.22 0 0 0-.23.11 40.8 40.8 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A37.2 37.2 0 0 0 25.4.51a.23.23 0 0 0-.23-.11A58.3 58.3 0 0 0 10.6 4.9a.21.21 0 0 0-.1.08C1.58 18.2-.95 31.1.3 43.8a.24.24 0 0 0 .09.17 58.8 58.8 0 0 0 17.7 9 .23.23 0 0 0 .25-.08 42 42 0 0 0 3.62-5.9.23.23 0 0 0-.12-.32 38.7 38.7 0 0 1-5.53-2.64.23.23 0 0 1-.02-.38 30.8 30.8 0 0 0 1.1-.86.22.22 0 0 1 .23-.03c11.6 5.3 24.1 5.3 35.5 0a.22.22 0 0 1 .23.03l1.1.86a.23.23 0 0 1-.02.38 36.4 36.4 0 0 1-5.54 2.63.23.23 0 0 0-.12.32 47.1 47.1 0 0 0 3.62 5.9c.06.1.17.13.27.09a58.6 58.6 0 0 0 17.7-8.98.23.23 0 0 0 .1-.17c1.47-15.2-2.47-28-10.4-39.5a.18.18 0 0 0-.1-.09z"
+            />
+          </svg>
+          Login with Discord
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+     MAIN
+═══════════════════════════════════════ -->
+    <main class="main">
+      <!-- ══════════════════════════════════════
+       HOME PAGE
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-home">
+        <!-- HERO (logged out) -->
+        <div class="hero" id="home-hero">
+          <div class="hero-bg"></div>
+          <div class="hero-inner">
+            <div class="hero-tag">✦ Community Rankings</div>
+            <h1 class="hero-title">
+              The <em>internet</em> decides<br />what's the best
+            </h1>
+            <p class="hero-sub">
+              Create leaderboards on anything. Add options, vote, climb the
+              ranks. The community always wins.
+            </p>
+            <button class="hero-cta" id="hero-login-btn">
+              <svg
+                width="16"
+                height="12"
+                viewBox="0 0 71 55"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a.22.22 0 0 0-.23.11 40.8 40.8 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A37.2 37.2 0 0 0 25.4.51a.23.23 0 0 0-.23-.11A58.3 58.3 0 0 0 10.6 4.9a.21.21 0 0 0-.1.08C1.58 18.2-.95 31.1.3 43.8a.24.24 0 0 0 .09.17 58.8 58.8 0 0 0 17.7 9 .23.23 0 0 0 .25-.08 42 42 0 0 0 3.62-5.9.23.23 0 0 0-.12-.32 38.7 38.7 0 0 1-5.53-2.64.23.23 0 0 1-.02-.38 30.8 30.8 0 0 0 1.1-.86.22.22 0 0 1 .23-.03c11.6 5.3 24.1 5.3 35.5 0a.22.22 0 0 1 .23.03l1.1.86a.23.23 0 0 1-.02.38 36.4 36.4 0 0 1-5.54 2.63.23.23 0 0 0-.12.32 47.1 47.1 0 0 0 3.62 5.9c.06.1.17.13.27.09a58.6 58.6 0 0 0 17.7-8.98.23.23 0 0 0 .1-.17c1.47-15.2-2.47-28-10.4-39.5a.18.18 0 0 0-.1-.09z"
+                />
+              </svg>
+              Continue with Discord
+            </button>
+            <div class="hero-stats">
+              <div>
+                <span class="hero-stat-val">48k+</span
+                ><span class="hero-stat-lbl">Leaderboards</span>
+              </div>
+              <div>
+                <span class="hero-stat-val">1.4M</span
+                ><span class="hero-stat-lbl">Votes cast</span>
+              </div>
+              <div>
+                <span class="hero-stat-val">312k</span
+                ><span class="hero-stat-lbl">Members</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logged-in welcome bar (app.js populates) -->
+        <div id="home-loggedin" style="display: none"></div>
+
+        <!-- FEED -->
+        <div class="feed-layout">
+          <!-- LEFT: main feed -->
+          <div>
+            <div class="section-hd" style="margin-bottom: 1rem">
+              <h3>Recent</h3>
+              <span class="section-hd-meta">Sorted by newest</span>
+            </div>
+
+            <!-- Create prompt (logged in) -->
+            <div
+              class="feed-card create-box"
+              id="create-box"
+              style="display: none"
+            >
+              <div class="feed-title">✦ Create a leaderboard…</div>
+            </div>
+
+            <!-- Leaderboard cards — app.js injects here -->
+            <div id="home-leaderboards">
+              <!-- Skeletons shown until app.js loads real data -->
+              <div class="skeleton-card">
+                <div class="skeleton-line skeleton-img"></div>
+                <div class="skeleton-body">
+                  <div class="skeleton-line skeleton-title"></div>
+                  <div class="skeleton-line skeleton-desc"></div>
+                  <div class="skeleton-line skeleton-desc-2"></div>
+                  <div class="skeleton-line skeleton-meta"></div>
+                </div>
+              </div>
+              <div class="skeleton-card">
+                <div class="skeleton-line skeleton-img"></div>
+                <div class="skeleton-body">
+                  <div class="skeleton-line skeleton-title"></div>
+                  <div class="skeleton-line skeleton-desc"></div>
+                  <div class="skeleton-line skeleton-desc-2"></div>
+                  <div class="skeleton-line skeleton-meta"></div>
+                </div>
+              </div>
+              <div class="skeleton-card">
+                <div class="skeleton-line skeleton-img"></div>
+                <div class="skeleton-body">
+                  <div class="skeleton-line skeleton-title"></div>
+                  <div class="skeleton-line skeleton-desc"></div>
+                  <div class="skeleton-line skeleton-desc-2"></div>
+                  <div class="skeleton-line skeleton-meta"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="home-pagination">
+              <button id="home-prev">←</button>
+              <span
+                id="home-page-info"
+                style="
+                  font-size: 0.8rem;
+                  font-weight: 500;
+                  color: var(--text-3);
+                  padding: 0 0.25rem;
+                "
+                >Page 1</span
+              >
+              <button id="home-next">→</button>
+            </div>
+          </div>
+
+          <!-- RIGHT: sidebar -->
+          <div class="sidebar">
+            <!-- Trending Now section removed -->
+
+            <div class="sidebar-section">
+              <h3>Browse by Category</h3>
+              <div id="category-list" class="category-chips"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       TRENDING PAGE
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-trending" style="display: none">
+        <div class="section-hd" style="margin-bottom: 1.5rem">
+          <h2
+            style="
+              font-size: 1.4rem;
+              font-weight: 600;
+              letter-spacing: -0.03em;
+              color: var(--text);
+            "
+          >
+            Trending
+          </h2>
+          <span class="section-hd-meta">Updated hourly</span>
+        </div>
+        <div class="big-grid" id="trending-grid"></div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       SEARCH PAGE
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-search" style="display: none">
+        <div class="search-page-wrap">
+          <div class="search-hero">
+            <div class="search-hero-title">Find anything</div>
+            <div class="search-hero-sub">
+              Search live community leaderboards
+            </div>
+
+            <div class="search-bar-wrap">
+              <span class="search-bar-icon">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </span>
+              <input
+                id="search-input"
+                placeholder="Best anime, top rappers, greatest movies…"
+                autocomplete="off"
+              />
+              <button id="search-btn">Search</button>
+            </div>
+
+            <div class="search-categories">
+              <button class="search-cat-chip active" data-cat="">All</button>
+              <button class="search-cat-chip" data-cat="Gaming">Gaming</button>
+              <button class="search-cat-chip" data-cat="Movies">Movies</button>
+              <button class="search-cat-chip" data-cat="Music">Music</button>
+              <button class="search-cat-chip" data-cat="Sports">Sports</button>
+              <button class="search-cat-chip" data-cat="Anime">Anime</button>
+              <button class="search-cat-chip" data-cat="Technology">
+                Tech
+              </button>
+              <button class="search-cat-chip" data-cat="Food">Food</button>
+              <button class="search-cat-chip" data-cat="Memes">Memes</button>
+            </div>
+          </div>
+
+          <div class="search-section" id="search-recent-section">
+            <div class="search-section-hd">
+              <span class="search-section-title">Recent Searches</span>
+              <button class="search-section-clear" id="clear-recent-btn">
+                Clear all
+              </button>
+            </div>
+            <div class="recent-list" id="recent-searches-list"></div>
+          </div>
+
+          <div class="search-section" id="search-trending-section">
+            <div class="search-section-hd">
+              <span class="search-section-title">Trending Searches</span>
+            </div>
+            <div class="trending-tags" id="trending-search-tags"></div>
+          </div>
+
+          <div id="search-results-area" style="display: none">
+            <div class="search-results-hd">
+              <div class="search-results-hd-line"></div>
+              <span class="search-results-hd-text" id="search-results-label"
+                >Results</span
+              >
+              <div class="search-results-hd-line"></div>
+            </div>
+          </div>
+
+          <div class="big-grid" id="search-results"></div>
+        </div>
+
+        <script>
+          document.querySelectorAll(".search-cat-chip").forEach((chip) => {
+            chip.addEventListener("click", () => {
+              document
+                .querySelectorAll(".search-cat-chip")
+                .forEach((c) => c.classList.remove("active"));
+              chip.classList.add("active");
+            });
+          });
+          const origSearchBtn = document.getElementById("search-btn");
+          if (origSearchBtn) {
+            origSearchBtn.addEventListener("click", () => {
+              const q = document.getElementById("search-input")?.value?.trim();
+              if (q) {
+                document.getElementById("search-recent-section").style.display =
+                  "none";
+                document.getElementById(
+                  "search-trending-section",
+                ).style.display = "none";
+                document.getElementById("search-results-area").style.display =
+                  "block";
+                document.getElementById("search-results-label").textContent =
+                  `Results for "${q}"`;
+              }
+            });
+          }
+          document
+            .getElementById("clear-recent-btn")
+            ?.addEventListener("click", () => {
+              document.getElementById("recent-searches-list").innerHTML = "";
+            });
+        </script>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       PROFILE PAGE
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-profile" style="display: none">
+        <div class="profile-x-wrap">
+          <div class="profile-banner"></div>
+
+          <div class="profile-x-header">
+            <div class="profile-x-top-row">
+              <div class="profile-x-avatar-wrap">
+                <div class="profile-x-avatar" id="profile-avatar-wrap">
+                  <img
+                    id="profile-avatar"
+                    src=""
+                    alt=""
+                    style="
+                      display: none;
+                      width: 100%;
+                      height: 100%;
+                      object-fit: cover;
+                      border-radius: 50%;
+                    "
+                  />
+                  <span id="profile-avatar-letter">J</span>
+                </div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  gap: 0.5rem;
+                  margin-top: 0.5rem;
+                  flex-shrink: 0;
+                "
+              >
+                <button
+                  class="btn btn-ghost btn-sm profile-x-action-btn danger"
+                  id="profile-action-btn"
+                  data-profile-action="logout"
+                >
+                  Sign out
+                </button>
+              </div>
+            </div>
+
+            <div class="profile-x-name-block">
+              <div class="profile-x-name" id="profile-name">Username</div>
+              <div class="profile-x-handle" id="profile-status">Community Member</div>
+              <div class="profile-badge-stack" id="profile-badge-stack"></div>
+              <div class="profile-x-rep-badge">
+                ♦ <span id="profile-reputation">0</span> reputation
+              </div>
+            </div>
+
+              <p class="profile-bio" id="profile-bio"></p>
+              <div class="profile-owner-actions" id="profile-owner-actions" style="display: none">
+                <button class="btn btn-ghost btn-sm" id="edit-bio-btn">Add/Edit Bio</button>
+                <button class="btn btn-ghost btn-sm" id="request-status-btn">Request Badge/Status</button>
+                <button class="btn btn-ghost btn-sm" id="edit-status-btn" style="display: none">Edit Status</button>
+                <button class="btn btn-ghost btn-sm" id="toggle-activity-btn">Disable Activity</button>
+              </div>
+
+            <div class="profile-x-stats">
+              <div class="profile-x-stat">
+                <span class="profile-x-stat-val" id="stat-leaderboards">0</span>
+                <span class="profile-x-stat-lbl">Created</span>
+              </div>
+              <div class="profile-x-stat">
+                <span class="profile-x-stat-val" id="stat-votes-cast">0</span>
+                <span class="profile-x-stat-lbl">Votes Cast</span>
+              </div>
+              <div class="profile-x-stat">
+                <span class="profile-x-stat-val" id="stat-votes-received"
+                  >0</span
+                >
+                <span class="profile-x-stat-lbl">Votes Received</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-x-tabs">
+            <button class="profile-x-tab active" data-ptab="leaderboards">
+              Leaderboards
+            </button>
+            <button class="profile-x-tab" data-ptab="votes">Votes</button>
+            <button class="profile-x-tab" data-ptab="activity">Activity</button>
+          </div>
+
+          <div class="profile-x-tab-content">
+            <div class="profile-x-tab-pane active" id="ptab-leaderboards">
+              <div
+                class="profile-lb-grid lb-grid leaderboard-grid"
+                id="profile-leaderboards"
+              ></div>
+            </div>
+            <div class="profile-x-tab-pane" id="ptab-votes">
+              <div class="profile-x-empty">
+                <div
+                  class="profile-x-empty-icon"
+                  style="
+                    font-size: 1.75rem;
+                    margin-bottom: 0.5rem;
+                    opacity: 0.4;
+                  "
+                >
+                  🗳
+                </div>
+                <div
+                  style="
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    color: var(--text-3);
+                  "
+                >
+                  No votes yet
+                </div>
+              </div>
+            </div>
+            <div class="profile-x-tab-pane" id="ptab-activity">
+              <div class="profile-x-empty">
+                <div
+                  class="profile-x-empty-icon"
+                  style="
+                    font-size: 1.75rem;
+                    margin-bottom: 0.5rem;
+                    opacity: 0.4;
+                  "
+                >
+                  📊
+                </div>
+                <div
+                  style="
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    color: var(--text-3);
+                  "
+                >
+                  No activity yet
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          document.querySelectorAll(".profile-x-tab").forEach((tab) => {
+            tab.addEventListener("click", () => {
+              document
+                .querySelectorAll(".profile-x-tab")
+                .forEach((t) => t.classList.remove("active"));
+              document
+                .querySelectorAll(".profile-x-tab-pane")
+                .forEach((p) => p.classList.remove("active"));
+              tab.classList.add("active");
+              const pane = document.getElementById("ptab-" + tab.dataset.ptab);
+              if (pane) pane.classList.add("active");
+            });
+          });
+        </script>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       ADMIN PAGE
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-admin" style="display: none">
+        <div class="admin-dash-header">
+          <div>
+            <div class="admin-dash-title">Admin</div>
+            <div class="admin-dash-subtitle">
+              Review and moderate community content
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-kpi-row">
+          <div class="admin-kpi-card">
+            <div
+              class="admin-kpi-icon"
+              style="font-size: 1rem; margin-bottom: 0.45rem; opacity: 0.7"
+            >
+              📋
+            </div>
+            <div class="admin-kpi-val" id="kpi-pending-lb">0</div>
+            <div class="admin-kpi-lbl">Pending Leaderboards</div>
+            <div class="admin-kpi-delta">Awaiting review</div>
+          </div>
+          <div class="admin-kpi-card">
+            <div
+              class="admin-kpi-icon"
+              style="font-size: 1rem; margin-bottom: 0.45rem; opacity: 0.7"
+            >
+              ➕
+            </div>
+            <div class="admin-kpi-val" id="kpi-pending-opt">0</div>
+            <div class="admin-kpi-lbl">Pending Options</div>
+            <div class="admin-kpi-delta">Awaiting review</div>
+          </div>
+          <div class="admin-kpi-card">
+            <div
+              class="admin-kpi-icon"
+              style="font-size: 1rem; margin-bottom: 0.45rem; opacity: 0.7"
+            >
+              🏷
+            </div>
+            <div class="admin-kpi-val" id="kpi-pending-cat">0</div>
+            <div class="admin-kpi-lbl">Pending Categories</div>
+            <div class="admin-kpi-delta">Awaiting review</div>
+          </div>
+          <div class="admin-kpi-card">
+            <div
+              class="admin-kpi-icon"
+              style="font-size: 1rem; margin-bottom: 0.45rem; opacity: 0.7"
+            >
+              🚩
+            </div>
+            <div class="admin-kpi-val" id="kpi-reports">0</div>
+            <div class="admin-kpi-lbl">Open Reports</div>
+            <div class="admin-kpi-delta" style="color: var(--red)">
+              Needs attention
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-tab-nav">
+          <button class="admin-tab-btn-v2 admin-tab-btn" data-tab="analytics">
+            Analytics
+          </button>
+          <button
+            class="admin-tab-btn-v2 active admin-tab-btn"
+            data-tab="pending-leaderboards"
+          >
+            Pending Leaderboards
+            <span class="admin-tab-badge" id="badge-lb">0</span>
+          </button>
+          <button
+            class="admin-tab-btn-v2 admin-tab-btn"
+            data-tab="pending-options"
+          >
+            Pending Options
+            <span class="admin-tab-badge" id="badge-opt">0</span>
+          </button>
+          <button
+            class="admin-tab-btn-v2 admin-tab-btn"
+            data-tab="pending-categories"
+          >
+            Pending Categories
+            <span class="admin-tab-badge" id="badge-cat">0</span>
+          </button>
+          <button class="admin-tab-btn-v2 admin-tab-btn" data-tab="reports">
+            Reports
+            <span class="admin-tab-badge" id="badge-rep">0</span>
+          </button>
+          <button class="admin-tab-btn-v2 admin-tab-btn" data-tab="status-requests">
+            Status Requests
+            <span class="admin-tab-badge" id="badge-status">0</span>
+          </button>
+          <button class="admin-tab-btn-v2 admin-tab-btn" data-tab="all-leaderboards">
+            Leaderboards
+          </button>
+          <button class="admin-tab-btn-v2 admin-tab-btn" data-tab="all-users">
+            Users
+          </button>
+        </div>
+
+        <div class="admin-tab-panels">
+          <div class="admin-tab-content admin-tab-panel" id="analytics-tab" style="display: none">
+            <div class="admin-analytics-grid">
+              <div class="admin-analytics-card"><h3>Votes</h3><canvas id="votes-chart"></canvas></div>
+              <div class="admin-analytics-card"><h3>Categories</h3><canvas id="category-chart"></canvas><div id="category-legend"></div></div>
+              <div class="admin-analytics-card"><h3>Top Leaderboards</h3><div id="top-lb-bars"></div></div>
+              <div class="admin-analytics-card"><h3>Activity</h3><div id="admin-activity-log"></div></div>
+            </div>
+          </div>
+          <div
+            class="admin-tab-content admin-tab-panel active"
+            id="pending-leaderboards-tab"
+          >
+            <div id="pending-leaderboards-list" class="admin-list"></div>
+          </div>
+          <div
+            class="admin-tab-content admin-tab-panel"
+            id="pending-options-tab"
+            style="display: none"
+          >
+            <div id="pending-options-list" class="admin-list"></div>
+          </div>
+          <div
+            class="admin-tab-content admin-tab-panel"
+            id="pending-categories-tab"
+            style="display: none"
+          >
+            <div id="pending-categories-list" class="admin-list"></div>
+          </div>
+          <div
+            class="admin-tab-content admin-tab-panel"
+            id="reports-tab"
+            style="display: none"
+          >
+            <div id="reports-list" class="admin-list"></div>
+          </div>
+          <div
+            class="admin-tab-content admin-tab-panel"
+            id="status-requests-tab"
+            style="display: none"
+          >
+            <div id="status-requests-list" class="admin-list"></div>
+          </div>
+          <div class="admin-tab-content admin-tab-panel" id="all-leaderboards-tab" style="display: none">
+            <div class="admin-table-toolbar">
+              <input class="form-input" id="adm-lb-search" placeholder="Search leaderboards" />
+              <select class="form-input" id="adm-lb-status"><option value="">All statuses</option><option value="approved">Approved</option><option value="pending">Pending</option><option value="rejected">Rejected</option></select>
+              <span id="adm-lb-count"></span>
+            </div>
+            <table class="admin-table"><tbody id="adm-lb-tbody"></tbody></table>
+            <div class="pagination"><button id="adm-lb-prev">←</button><span id="adm-lb-page">Page 1</span><button id="adm-lb-next">→</button></div>
+          </div>
+          <div class="admin-tab-content admin-tab-panel" id="all-users-tab" style="display: none">
+            <div class="admin-table-toolbar">
+              <input class="form-input" id="adm-user-search" placeholder="Search users" />
+              <select class="form-input" id="adm-user-status"><option value="">All users</option><option value="active">Active</option><option value="banned">Banned</option></select>
+              <span id="adm-user-count"></span>
+            </div>
+            <table class="admin-table"><tbody id="adm-user-tbody"></tbody></table>
+            <div class="pagination"><button id="adm-user-prev">←</button><span id="adm-user-page">Page 1</span><button id="adm-user-next">→</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       LEADERBOARD DETAIL
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-leaderboard-detail" style="display: none">
+        <!-- Top bar -->
+        <div class="detail-topbar">
+          <button class="btn btn-ghost btn-sm" id="back-btn">← Back</button>
+          <div class="detail-topbar-title" id="detail-topbar-title">—</div>
+          <div class="detail-topbar-meta">
+            <span class="detail-deadline-label" id="detail-deadline-label"></span>
+            <span class="detail-creator-label" id="detail-creator-name"></span>
+            <a
+              class="detail-creator-link"
+              id="detail-creator-link"
+              href="#"
+              target="_blank"
+              style="display: none"
+              >↗</a
+            >
+            <div class="detail-actions" id="detail-actions">
+              <button
+                class="detail-actions-toggle"
+                id="detail-actions-toggle"
+                aria-label="Open leaderboard actions"
+                aria-expanded="false"
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
+              <div class="detail-actions-menu">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  id="report-leaderboard-btn"
+                  style="display: none"
+                >
+                  Report
+                </button>
+                <button
+                  class="btn btn-danger btn-sm"
+                  id="delete-leaderboard-btn"
+                  style="display: none"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden block used by app.js -->
+        <div class="leaderboard-detail" id="leaderboard-detail"></div>
+
+        <div
+          class="leaderboard-cover"
+          id="leaderboard-cover"
+          style="display: none"
+        ></div>
+
+        <div
+          class="leaderboard-closed-notice"
+          id="leaderboard-closed-notice"
+          style="display: none"
+        ></div>
+
+        <!-- PODIUM -->
+        <div class="podium-wrapper" id="podium-wrapper" style="display: none">
+          <div class="podium-item rank-2" id="podium-2">
+            <div class="rank-trophy">🥈</div>
+            <div class="rank-avatar" id="podium-avatar-2">2</div>
+            <div class="rank-name" id="podium-name-2">—</div>
+            <div class="rank-score" id="podium-score-2">—</div>
+            <div class="podium-base">2</div>
+          </div>
+          <div class="podium-item rank-1" id="podium-1">
+            <div class="rank-trophy">🥇</div>
+            <div class="rank-avatar" id="podium-avatar-1">1</div>
+            <div class="rank-name" id="podium-name-1">—</div>
+            <div class="rank-score" id="podium-score-1">—</div>
+            <div class="podium-base">1</div>
+          </div>
+          <div class="podium-item rank-3" id="podium-3">
+            <div class="rank-trophy">🥉</div>
+            <div class="rank-avatar" id="podium-avatar-3">3</div>
+            <div class="rank-name" id="podium-name-3">—</div>
+            <div class="rank-score" id="podium-score-3">—</div>
+            <div class="podium-base">3</div>
+          </div>
+        </div>
+
+        <!-- Creator strip -->
+        <div
+          class="creator-strip"
+          id="creator-strip"
+          style="display: none"
+        ></div>
+
+        <!-- Ranked list with inline voting -->
+        <div class="ranked-list" id="ranked-list" style="display: none">
+          <div class="ranked-list-header">
+            <h3>Full Rankings</h3>
+            <button
+              class="btn btn-primary btn-sm"
+              id="add-option-btn"
+              style="display: none"
+            >
+              + Add
+            </button>
+          </div>
+          <div id="ranked-rows"></div>
+        </div>
+
+        <!-- Hidden for app.js -->
+        <div id="options-section-header" style="display: none"></div>
+        <div id="options-grid" style="display: none"></div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       BANNED PAGE
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-banned" style="display: none">
+        <div class="ban-screen">
+          <div class="ban-card">
+            <div class="ban-kicker">Account Restricted</div>
+            <h1>Sorry, you cannot access Leaderboards right now.</h1>
+            <p id="ban-message">
+              Your account has been banned or restricted by moderation.
+            </p>
+            <a class="btn btn-primary" href="mailto:support@example.com"
+              >Contact support</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       ABOUT / CREDITS
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-credits" style="display: none">
+        <div class="legal-wrap">
+          <div class="legal-head">
+            <h2>About <em>Leaderboards</em></h2>
+          </div>
+          <p class="legal-lead">
+            A community-driven ranking platform where anyone can create a
+            leaderboard on anything — and let the crowd decide what rises to the
+            top.
+          </p>
+          <div class="legal-block">
+            <h3>The Idea</h3>
+            <p>
+              Born from a simple question:
+              <em>"What if voting felt as addictive as a leaderboard?"</em> We
+              combined competitive ranking mechanics with open community
+              curation to create a space where opinions become data.
+            </p>
+          </div>
+          <div class="legal-block">
+            <h3>Creator</h3>
+            <div class="creator-card">
+              <div class="creator-av">J</div>
+              <div>
+                <div class="creator-name">Jared</div>
+                <div class="creator-role">Founder &amp; Developer</div>
+                <div class="socials">
+                  <a
+                    href="https://tiktok.com"
+                    target="_blank"
+                    class="social-chip"
+                    >TikTok ↗</a
+                  >
+                  <a
+                    href="https://youtube.com"
+                    target="_blank"
+                    class="social-chip"
+                    >YouTube ↗</a
+                  >
+                  <a
+                    href="https://github.com/jaredv2"
+                    target="_blank"
+                    class="social-chip"
+                    >GitHub ↗</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="legal-block">
+            <h3>Philosophy</h3>
+            <p>
+              Every opinion deserves a rank. Every rank deserves a community. No
+              ads, no pay-to-win — just votes.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       PRIVACY
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-privacy" style="display: none">
+        <div class="legal-wrap">
+          <div class="legal-head">
+            <h2><em>Privacy</em> Policy</h2>
+            <div class="legal-date">Last updated: January 2025</div>
+          </div>
+          <div class="legal-block">
+            <h3>What We Collect</h3>
+            <p>
+              Discord username, avatar, and user ID on login. We store your
+              votes, leaderboards, and reputation score. No passwords — auth is
+              fully handled by Discord OAuth.
+            </p>
+          </div>
+          <div class="legal-block">
+            <h3>How We Use It</h3>
+            <p>
+              Solely to power your experience: profile, vote tracking,
+              reputation. We never sell or share your data.
+            </p>
+          </div>
+          <div class="legal-block">
+            <h3>Cookies</h3>
+            <p>
+              One session cookie to keep you logged in. No tracking. No ads.
+              Clear it anytime by logging out.
+            </p>
+          </div>
+          <div class="legal-block">
+            <h3>Your Rights</h3>
+            <p>
+              Request account deletion at any time. We process requests within
+              30 days.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+       TERMS
+  ══════════════════════════════════════ -->
+      <section class="page" id="page-tos" style="display: none">
+        <div class="legal-wrap">
+          <div class="legal-head">
+            <h2>Terms of <em>Service</em></h2>
+            <div class="legal-date">Last updated: January 2025</div>
+          </div>
+          <div class="legal-block">
+            <h3>1. Acceptance</h3>
+            <p>By using Leaderboards you agree to these terms.</p>
+          </div>
+          <div class="legal-block">
+            <h3>2. Eligibility</h3>
+            <p>You must be at least 13 years old to use this platform.</p>
+          </div>
+          <div class="legal-block">
+            <h3>3. Content Rules</h3>
+            <p>
+              No hateful, illegal, or threatening content. We may remove content
+              or ban accounts without notice.
+            </p>
+          </div>
+          <div class="legal-block">
+            <h3>4. Voting Integrity</h3>
+            <p>
+              No bots, multiple accounts, or coordinated abuse. Violations
+              result in permanent suspension.
+            </p>
+          </div>
+          <div class="legal-block">
+            <h3>5. Intellectual Property</h3>
+            <p>
+              You own your content. By posting you grant us a license to display
+              it. Don't post content you don't own.
+            </p>
+          </div>
+          <div class="legal-block">
+            <h3>6. Disclaimer</h3>
+            <p>
+              Platform provided "as is." No guarantees of uptime, accuracy, or
+              fitness for purpose.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-logo"><em>Leaderboards</em></div>
+        <nav class="footer-links">
+          <a href="#" class="footer-link" data-page="credits">About</a>
+          <a href="#" class="footer-link" data-page="privacy">Privacy</a>
+          <a href="#" class="footer-link" data-page="tos">Terms</a>
+        </nav>
+        <p class="footer-copy">© 2025 Leaderboards</p>
+      </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════
+     MODALS
+═══════════════════════════════════════ -->
+
+    <!-- CREATE LEADERBOARD -->
+    <div class="modal" id="create-leaderboard-modal">
+      <div class="modal-box modal-box-wide">
+        <div class="modal-hd">
+          <h2 class="modal-title">Create Leaderboard</h2>
+          <button class="modal-close">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 1l8 8M9 1l-8 8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="form" id="create-leaderboard-form">
+            <div class="form-group">
+              <label class="form-label"
+                >Title <span class="form-req">*</span></label
+              >
+              <input
+                type="text"
+                class="form-input"
+                name="title"
+                required
+                maxlength="100"
+                placeholder="e.g. Best Anime of All Time"
+              />
+              <span class="form-hint"
+                >Use a clear title people can understand at a glance.</span
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea
+                class="form-input"
+                name="description"
+                rows="3"
+                maxlength="500"
+                placeholder="Explain what voters should compare and any rules they should follow."
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cover Image URL</label>
+              <input
+                type="url"
+                class="form-input"
+                name="image_url"
+                placeholder="https://example.com/cover.jpg"
+              />
+              <span class="form-hint">Shown on leaderboard cards and the detail page.</span>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <div class="cat-dropdown-wrap" id="cat-dropdown-wrap">
+                  <button
+                    type="button"
+                    class="cat-dropdown-trigger"
+                    id="cat-dropdown-trigger"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                  >
+                    <span id="cat-dropdown-label">Select a category…</span>
+                    <svg
+                      class="cat-dropdown-arrow"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
+                      <polyline points="4 6 8 10 12 6" />
+                    </svg>
+                  </button>
+                  <div
+                    class="cat-dropdown-menu"
+                    id="cat-dropdown-menu"
+                    role="listbox"
+                  ></div>
+                </div>
+                <!-- Hidden real select for form submission -->
+                <select
+                  class="form-input"
+                  id="category-select"
+                  name="category"
+                  style="display: none"
+                  tabindex="-1"
+                >
+                  <option value="">Select a category…</option>
+                </select>
+                <span class="form-hint">
+                  Categories help people discover the leaderboard.
+                  <button
+                    type="button"
+                    class="social-chip"
+                    id="suggest-category-btn"
+                    style="border: none; cursor: pointer; font-family: inherit"
+                  >
+                    + Suggest new
+                  </button>
+                </span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Sorting</label>
+                <select class="form-input" name="sorting_method">
+                  <option value="weighted">Weighted Votes</option>
+                  <option value="most_votes">Most Votes</option>
+                  <option value="newest">Newest</option>
+                  <option value="trending">Trending</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label">Deadline</label>
+                <input
+                  type="datetime-local"
+                  class="form-input"
+                  name="voting_deadline"
+                />
+                <span class="form-hint">Leave empty for no deadline.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">
+                  Max Votes / User -
+                  <span
+                    style="color: var(--accent); font-weight: 700"
+                    id="max-votes-value"
+                    >1</span
+                  >
+                </label>
+                <div class="slider-wrap">
+                <input
+                  type="range"
+                  class="form-slider"
+                  id="max-votes-slider"
+                  name="max_votes_per_user"
+                  value="1"
+                  min="1"
+                  max="51"
+                />
+                  <span class="slider-val" id="max-votes-label">1</span>
+                </div>
+                <span class="form-hint">Drag to infinity for no per-user vote limit.</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">
+                Max Options -
+                <span
+                  style="color: var(--accent); font-weight: 700"
+                  id="max-options-value"
+                  >10</span
+                >
+              </label>
+              <div class="slider-wrap">
+                <input
+                  type="range"
+                  class="form-slider"
+                  id="max-options-slider"
+                  name="max_options"
+                  value="10"
+                  min="1"
+                  max="51"
+                />
+                <span class="slider-val" id="max-options-label">10</span>
+              </div>
+              <span class="form-hint">Drag to infinity for unlimited options.</span>
+            </div>
+            <label class="form-check">
+              <input type="checkbox" name="allow_user_options" />
+              <span>Allow other people to add options</span>
+            </label>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="cancel-create-btn"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Create Leaderboard
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD OPTION -->
+    <div class="modal" id="add-option-modal">
+      <div class="modal-box modal-box-wide">
+        <div class="modal-hd">
+          <h2 class="modal-title">Add Entry</h2>
+          <button class="modal-close">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 1l8 8M9 1l-8 8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="form" id="add-option-form">
+            <div class="form-group">
+              <label class="form-label"
+                >Name <span class="form-req">*</span></label
+              >
+              <input
+                type="text"
+                class="form-input"
+                name="name"
+                required
+                maxlength="100"
+                placeholder="e.g. Attack on Titan"
+              />
+              <span class="form-hint"
+                >This is the name voters will see in the ranking.</span
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea
+                class="form-input"
+                name="description"
+                rows="3"
+                maxlength="500"
+                placeholder="Add context, notes, or criteria that help people vote confidently."
+              ></textarea>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label">Image URL</label>
+                <input
+                  type="url"
+                  class="form-input"
+                  name="image_url"
+                  placeholder="https://example.com/img.jpg"
+                />
+                <span class="form-hint">Direct link to an image.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">External URL</label>
+                <input
+                  type="url"
+                  class="form-input"
+                  name="external_url"
+                  placeholder="https://…"
+                />
+                <span class="form-hint">Link to more info.</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tags</label>
+              <input
+                type="text"
+                class="form-input"
+                name="tags"
+                maxlength="200"
+                placeholder="action, 2023, shonen"
+              />
+              <span class="form-hint"
+                >Type a tag and press comma or Enter to add it.</span
+              >
+            </div>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="cancel-option-btn"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">Add Entry</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUGGEST CATEGORY -->
+    <div class="modal" id="suggest-category-modal">
+      <div class="modal-box modal-box-sm">
+        <div class="modal-hd">
+          <h2 class="modal-title">Suggest Category</h2>
+          <button class="modal-close">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 1l8 8M9 1l-8 8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="form" id="suggest-category-form">
+            <div class="form-group">
+              <label class="form-label"
+                >Category Name <span class="form-req">*</span></label
+              >
+              <input
+                type="text"
+                class="form-input"
+                name="category_name"
+                required
+                maxlength="50"
+                placeholder="e.g. Video Games"
+              />
+              <span class="form-hint"
+                >Choose a broad, reusable category name that helps
+                discovery.</span
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Why is it needed?</label>
+              <textarea
+                class="form-input"
+                name="category_reason"
+                rows="2"
+                maxlength="200"
+                placeholder="Tell moderators why this category should be available."
+              ></textarea>
+            </div>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="cancel-suggest-btn"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Submit for Review
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERT -->
+    <div class="modal" id="alert-modal">
+      <div class="modal-box modal-box-sm">
+        <div class="modal-alert-body">
+          <div class="alert-icon-wrap ai-info" id="alert-icon-wrap">!</div>
+          <div class="alert-ttl" id="alert-ttl">Notice</div>
+          <div class="alert-msg" id="alert-msg"></div>
+          <div class="alert-actions">
+            <button class="btn btn-primary btn-sm" id="alert-ok">Got it</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIRM -->
+    <div class="modal" id="confirm-modal">
+      <div class="modal-box modal-box-sm">
+        <div class="modal-alert-body">
+          <div class="alert-icon-wrap ai-warn">?</div>
+          <div class="alert-ttl" id="confirm-ttl">Confirm</div>
+          <div class="alert-msg" id="confirm-msg"></div>
+          <div class="alert-actions">
+            <button class="btn btn-ghost btn-sm" id="confirm-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary btn-sm" id="confirm-ok">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROMPT -->
+    <div class="modal" id="prompt-modal">
+      <div class="modal-box modal-box-sm">
+        <form class="modal-prompt-body" id="prompt-form">
+          <div class="modal-hd">
+            <div>
+              <div class="prompt-kicker" id="prompt-kicker">Input Required</div>
+              <h2 class="modal-title" id="prompt-title">Continue</h2>
+            </div>
+            <button type="button" class="modal-close" id="prompt-x">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M1 1l8 8M9 1l-8 8"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="prompt-label" for="prompt-input"
+              >Message</label
+            >
+            <input class="form-input" id="prompt-input" autocomplete="off" />
+            <textarea
+              class="form-input"
+              id="prompt-textarea"
+              rows="4"
+              style="display: none"
+            ></textarea>
+            <span class="form-hint" id="prompt-hint"></span>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="prompt-cancel">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" id="prompt-ok">
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- BADGES -->
+    <div class="modal" id="badges-modal">
+      <div class="modal-box modal-box-sm badges-modal-box">
+        <div class="modal-hd">
+          <div>
+            <div class="prompt-kicker">Profile Badges</div>
+            <h2 class="modal-title">All badges</h2>
+          </div>
+          <button class="modal-close" aria-label="Close badges">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 1l8 8M9 1l-8 8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="badge-modal-list" id="badge-modal-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION DETAIL MODAL -->
+    <div
+      id="option-detail-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="odm-title"
+    >
+      <div class="odm-box">
+        <div class="odm-header">
+          <div class="odm-media" id="odm-media">?</div>
+          <div class="odm-title-block">
+            <div class="odm-rank-badge" id="odm-rank">Rank #—</div>
+            <h2 id="odm-title">—</h2>
+          </div>
+          <button class="odm-close" id="odm-close" aria-label="Close">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 1l8 8M9 1l-8 8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="odm-body">
+          <p class="odm-desc" id="odm-desc">—</p>
+          <div class="odm-stats">
+            <div class="odm-stat">
+              <strong id="odm-votes">—</strong><span>Votes</span>
+            </div>
+            <div class="odm-stat">
+              <strong id="odm-score">—</strong><span>Score</span>
+            </div>
+            <div class="odm-stat">
+              <strong id="odm-rank-num">—</strong><span>Position</span>
+            </div>
+          </div>
+          <div class="odm-actions">
+            <button class="btn btn-primary" id="odm-vote-btn">Vote</button>
+            <a
+              class="btn btn-ghost btn-sm"
+              id="odm-external"
+              href="#"
+              target="_blank"
+              rel="noopener"
+              style="display: none"
+              >Learn More ↗</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+    <!-- ═══════════════════════════════════════
+     APP SCRIPTS
+═══════════════════════════════════════ -->
+    <script src="/app.js"></script>
+
+    <script>
+      console.log("[index.html] scripts initializing ✓");
+
+      /* ── Theme ── */
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const savedTheme = localStorage.getItem("lb-theme");
+      if (savedTheme === "dark" || (!savedTheme && prefersDark))
+        document.documentElement.setAttribute("data-theme", "dark");
+
+      document.getElementById("theme-toggle").addEventListener("click", () => {
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark";
+        document.documentElement.setAttribute(
+          "data-theme",
+          isDark ? "light" : "dark",
+        );
+        localStorage.setItem("lb-theme", isDark ? "light" : "dark");
+        document.getElementById("theme-toggle").textContent = isDark
+          ? "🌙"
+          : "☀️";
+        console.log("[theme] switched to", isDark ? "light" : "dark");
+      });
+      (function () {
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark";
+        document.getElementById("theme-toggle").textContent = isDark
+          ? "☀️"
+          : "🌙";
+      })();
+
+      /* ── Auth state → UI ── */
+      function syncAuthUI(isLoggedIn, user) {
+        console.log(
+          "[syncAuthUI] isLoggedIn:",
+          isLoggedIn,
+          "user:",
+          user?.username,
+        );
+        const loginBtn = document.getElementById("login-btn");
+        const navCreate = document.getElementById("nav-create-btn");
+        const navUser = document.getElementById("nav-user-pill");
+        const profileLink = document.getElementById("profile-link");
+        const drawerProfile = document.getElementById("drawer-profile-link");
+        const drawerCreate = document.getElementById("drawer-create-btn");
+        const drawerLogout = document.getElementById("drawer-logout-btn");
+        const drawerLogin = document.getElementById("drawer-login-btn");
+        const homeHero = document.getElementById("home-hero");
+        const homeLoggedIn = document.getElementById("home-loggedin");
+
+        if (isLoggedIn && user) {
+          loginBtn.style.display = "none";
+          navCreate.style.display = "flex";
+          navUser.style.display = "flex";
+          profileLink.style.display = "block";
+          drawerProfile.style.display = "flex";
+          drawerCreate.style.display = "flex";
+          drawerLogout.style.display = "flex";
+          drawerLogin.style.display = "none";
+          homeHero.style.display = "none";
+          homeLoggedIn.style.display = "block";
+
+          const nameEl = document.getElementById("nav-user-name");
+          const avEl = document.getElementById("nav-user-avatar");
+          if (nameEl) nameEl.textContent = user.username || "User";
+          if (avEl) {
+            if (user.avatar_url) {
+              avEl.innerHTML = `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+            } else {
+              avEl.textContent = (user.username || "U")[0].toUpperCase();
+            }
+          }
+
+          const pName = document.getElementById("profile-name");
+          const pRep = document.getElementById("profile-reputation");
+          const pAv = document.getElementById("profile-avatar");
+          const pAvLetter = document.getElementById("profile-avatar-letter");
+          if (pName) pName.textContent = user.username || "";
+          if (pRep) pRep.textContent = user.reputation || 0;
+          if (pAv && user.avatar_url) {
+            pAv.src = user.avatar_url;
+            pAv.style.display = "block";
+            if (pAvLetter) pAvLetter.style.display = "none";
+          }
+        } else {
+          loginBtn.style.display = "flex";
+          navCreate.style.display = "none";
+          navUser.style.display = "none";
+          profileLink.style.display = "none";
+          drawerProfile.style.display = "none";
+          drawerCreate.style.display = "none";
+          drawerLogout.style.display = "none";
+          drawerLogin.style.display = "flex";
+          homeHero.style.display = "flex";
+          homeLoggedIn.style.display = "none";
+        }
+      }
+
+      new MutationObserver(() => {
+        const isLoggedIn = document.body.classList.contains("is-logged-in");
+        const user = window._currentUser || null;
+        syncAuthUI(isLoggedIn, user);
+      }).observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+      syncAuthUI(false, null);
+
+      /* ── Hamburger / Drawer ── */
+      function openDrawer() {
+        document.getElementById("nav-drawer").classList.add("open");
+        console.log("[drawer] open");
+      }
+      function closeDrawer() {
+        document.getElementById("nav-drawer").classList.remove("open");
+        console.log("[drawer] close");
+      }
+      document
+        .getElementById("nav-hamburger")
+        .addEventListener("click", openDrawer);
+      document
+        .getElementById("drawer-close")
+        .addEventListener("click", closeDrawer);
+      document
+        .getElementById("drawer-backdrop")
+        .addEventListener("click", closeDrawer);
+      document
+        .getElementById("drawer-login-btn")
+        .addEventListener("click", () => {
+          closeDrawer();
+          document.getElementById("login-btn").click();
+        });
+      document
+        .getElementById("drawer-logout-btn")
+        .addEventListener("click", () => {
+          closeDrawer();
+          if (typeof logout === "function") logout();
+        });
+      document
+        .getElementById("drawer-create-btn")
+        .addEventListener("click", () => {
+          closeDrawer();
+          openModal("create-leaderboard-modal");
+        });
+
+      /* ── Create button ── */
+      document
+        .getElementById("nav-create-btn")
+        .addEventListener("click", () => openModal("create-leaderboard-modal"));
+
+      /* ── Modal helpers ── */
+      function openModal(id) {
+        const m = document.getElementById(id);
+        if (m) {
+          m.classList.add("active");
+          document.body.style.overflow = "hidden";
+          console.log("[modal] open:", id);
+        }
+      }
+      function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) {
+          m.classList.remove("active");
+          document.body.style.overflow = "";
+          console.log("[modal] close:", id);
+        }
+      }
+
+      document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("modal")) {
+          e.target.classList.remove("active");
+          document.body.style.overflow = "";
+        }
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          document
+            .querySelectorAll(".modal.active")
+            .forEach((m) => m.classList.remove("active"));
+          document.body.style.overflow = "";
+        }
+      });
+      document.querySelectorAll(".modal-close").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const m = btn.closest(".modal");
+          if (m) {
+            m.classList.remove("active");
+            document.body.style.overflow = "";
+          }
+        });
+      });
+
+      document
+        .getElementById("cancel-create-btn")
+        .addEventListener("click", () =>
+          closeModal("create-leaderboard-modal"),
+        );
+      document
+        .getElementById("cancel-option-btn")
+        .addEventListener("click", () => closeModal("add-option-modal"));
+      document
+        .getElementById("cancel-suggest-btn")
+        .addEventListener("click", () => closeModal("suggest-category-modal"));
+
+      /* ── Suggest category ── */
+      document
+        .getElementById("suggest-category-btn")
+        .addEventListener("click", () => openModal("suggest-category-modal"));
+      document
+        .getElementById("suggest-category-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const name = e.target.category_name.value.trim();
+          closeModal("suggest-category-modal");
+          showToast(`"${name}" submitted for review ✓`, "success");
+          e.target.reset();
+        });
+
+      /* ── Slider ── */
+      document.addEventListener("DOMContentLoaded", () => {
+        const slider = document.getElementById("max-options-slider");
+        const valEl = document.getElementById("max-options-value");
+        const lbl = document.getElementById("max-options-label");
+        if (slider) {
+          const update = () => {
+            const v = parseInt(slider.value);
+            const txt = v === 51 ? "∞" : v;
+            if (valEl) valEl.textContent = txt;
+            if (lbl) lbl.textContent = txt;
+            console.log("[slider] max-options:", txt);
+          };
+          slider.addEventListener("input", update);
+          update();
+        }
+      });
+
+      /* ── Custom Alert ── */
+      document.addEventListener("DOMContentLoaded", () => {
+        [
+          ["max-options-slider", "max-options-value", "max-options-label", "max-options"],
+          ["max-votes-slider", "max-votes-value", "max-votes-label", "max-votes"],
+        ].forEach(([sliderId, valueId, labelId, logName]) => {
+          const slider = document.getElementById(sliderId);
+          const valEl = document.getElementById(valueId);
+          const lbl = document.getElementById(labelId);
+          if (!slider) return;
+          const update = () => {
+            const v = parseInt(slider.value);
+            const txt = v === 51 ? "infinite" : v;
+            if (valEl) valEl.textContent = txt;
+            if (lbl) lbl.textContent = txt;
+            console.log("[slider]", logName + ":", txt);
+          };
+          slider.addEventListener("input", update);
+          update();
+        });
+      });
+
+      window.showAlert = function (msg, title = "Notice", type = "info") {
+        console.log("[showAlert]", title, msg);
+        const friendly = {
+          "Vote Update Failed": {
+            title: "Vote Not Updated",
+            msg: `${msg} Check whether you have already used your available vote for this leaderboard, then try again.`,
+          },
+          "Login Required": {
+            title: "Sign In Required",
+            msg: `${msg} Signing in keeps voting fair and lets you manage your own entries.`,
+          },
+          Error: {
+            title: "Something Went Wrong",
+            msg: `${msg} If this keeps happening, refresh the page and try again.`,
+          },
+        }[title];
+        if (friendly) {
+          title = friendly.title;
+          msg = friendly.msg;
+        }
+        document.getElementById("alert-ttl").textContent = title;
+        document.getElementById("alert-msg").textContent = msg;
+        const iw = document.getElementById("alert-icon-wrap");
+        iw.className =
+          "alert-icon-wrap " +
+          ({ error: "ai-error", success: "ai-success", warn: "ai-warn" }[
+            type
+          ] || "ai-info");
+        iw.textContent = { error: "✕", success: "✓", warn: "!" }[type] || "ℹ";
+        openModal("alert-modal");
+      };
+      document
+        .getElementById("alert-ok")
+        .addEventListener("click", () => closeModal("alert-modal"));
+
+      /* ── Custom Confirm ── */
+      window.showConfirm = function (msg, title = "Are you sure?") {
+        console.log("[showConfirm]", title);
+        return new Promise((res, rej) => {
+          document.getElementById("confirm-ttl").textContent = title;
+          document.getElementById("confirm-msg").textContent = msg;
+          window._cRes = res;
+          window._cRej = rej;
+          openModal("confirm-modal");
+        });
+      };
+      document
+        .getElementById("confirm-cancel")
+        .addEventListener("click", () => {
+          closeModal("confirm-modal");
+          if (window._cRej) window._cRej();
+        });
+      document.getElementById("confirm-ok").addEventListener("click", () => {
+        closeModal("confirm-modal");
+        if (window._cRes) window._cRes();
+      });
+
+      /* ── Override native alert / confirm ── */
+      window.showPrompt = function (options = {}) {
+        const config =
+          typeof options === "string" ? { label: options } : options;
+        const modal = document.getElementById("prompt-modal");
+        const form = document.getElementById("prompt-form");
+        const title = document.getElementById("prompt-title");
+        const kicker = document.getElementById("prompt-kicker");
+        const label = document.getElementById("prompt-label");
+        const hint = document.getElementById("prompt-hint");
+        const input = document.getElementById("prompt-input");
+        const textarea = document.getElementById("prompt-textarea");
+        const ok = document.getElementById("prompt-ok");
+        const multiline = !!config.multiline;
+        const field = multiline ? textarea : input;
+        const other = multiline ? input : textarea;
+
+        title.textContent = config.title || "Continue";
+        kicker.textContent = config.kicker || "Input Required";
+        label.textContent = config.label || "Message";
+        hint.textContent = config.hint || "";
+        ok.textContent = config.okText || "Submit";
+        input.style.display = multiline ? "none" : "block";
+        textarea.style.display = multiline ? "block" : "none";
+        other.required = false;
+        field.required = config.required !== false;
+        field.placeholder = config.placeholder || "";
+        field.value = config.defaultValue || "";
+
+        return new Promise((resolve) => {
+          let settled = false;
+          const finish = (value) => {
+            if (settled) return;
+            settled = true;
+            document.removeEventListener("keydown", onKey, true);
+            closeModal("prompt-modal");
+            resolve(value);
+          };
+          const onKey = (event) => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              finish(null);
+            }
+          };
+          form.onsubmit = (event) => {
+            event.preventDefault();
+            const value = field.value.trim();
+            if (field.required && !value) {
+              field.focus();
+              return;
+            }
+            finish(value);
+          };
+          const cancel = () => finish(null);
+          document.getElementById("prompt-cancel").onclick = cancel;
+          document.getElementById("prompt-x").onclick = cancel;
+          modal.onclick = (event) => {
+            if (event.target === modal) cancel();
+          };
+          openModal("prompt-modal");
+          document.addEventListener("keydown", onKey, true);
+          requestAnimationFrame(() => field.focus());
+        });
+      };
+
+      window.alert = (msg) => window.showAlert(String(msg));
+      window.confirm = (msg) => {
+        window.showConfirm(msg);
+        return false;
+      };
+
+      /* ── Toast ── */
+      window.showToast = function (msg, type = "info", ms = 3200) {
+        console.log("[toast]", type, msg);
+        const c = document.getElementById("toast-container");
+        const t = document.createElement("div");
+        t.className = "toast toast-" + type;
+        t.innerHTML = `<span class="toast-icon">${{ success: "✓", error: "✕", info: "ℹ" }[type] || "ℹ"}</span><span>${msg}</span>`;
+        c.appendChild(t);
+        requestAnimationFrame(() => t.classList.add("toast-show"));
+        setTimeout(() => {
+          t.classList.remove("toast-show");
+          t.addEventListener("transitionend", () => t.remove());
+        }, ms);
+      };
+
+      /* ── Detail topbar sync ── */
+      new MutationObserver(() => {
+        const d = document.getElementById("leaderboard-detail");
+        if (!d) return;
+        const h2 = d.querySelector("h2");
+        const cr = d.querySelector(".creator");
+        const ti = document.getElementById("detail-topbar-title");
+        const cn = document.getElementById("detail-creator-name");
+        if (h2 && ti) ti.textContent = h2.textContent;
+        if (cr && cn) cn.textContent = cr.textContent;
+      }).observe(
+        document.getElementById("leaderboard-detail") || document.body,
+        { childList: true, subtree: true },
+      );
+
+      /* ── Podium builder with inline voting ── */
+      function resetPodiumSlots() {
+        const podium = document.getElementById("podium-wrapper");
+        if (!podium) return;
+        podium.innerHTML = `
+      <div class="podium-item rank-2" id="podium-2">
+        <div class="rank-trophy">🥈</div>
+        <div class="rank-avatar" id="podium-avatar-2">2</div>
+        <div class="rank-name" id="podium-name-2">—</div>
+        <div class="rank-score" id="podium-score-2">—</div>
+        <div class="podium-base">2</div>
+      </div>
+      <div class="podium-item rank-1" id="podium-1">
+        <div class="rank-trophy">🥇</div>
+        <div class="rank-avatar" id="podium-avatar-1">1</div>
+        <div class="rank-name" id="podium-name-1">—</div>
+        <div class="rank-score" id="podium-score-1">—</div>
+        <div class="podium-base">1</div>
+      </div>
+      <div class="podium-item rank-3" id="podium-3">
+        <div class="rank-trophy">🥉</div>
+        <div class="rank-avatar" id="podium-avatar-3">3</div>
+        <div class="rank-name" id="podium-name-3">—</div>
+        <div class="rank-score" id="podium-score-3">—</div>
+        <div class="podium-base">3</div>
+      </div>
+    `;
+        console.log("[podium] slots reset ✓");
+      }
+
+      function buildLeaderboardView(options) {
+        console.log("[buildLeaderboardView] options count:", options.length);
+        const leaderboardClosed =
+          typeof window.isCurrentLeaderboardClosed === "function" &&
+          window.isCurrentLeaderboardClosed();
+        const addOptionBtn = document.getElementById("add-option-btn");
+        if (addOptionBtn && leaderboardClosed) {
+          addOptionBtn.style.display = "none";
+          addOptionBtn.disabled = true;
+        }
+        const sorted = [...options].sort(
+          (a, b) =>
+            (b.vote_count || b.weighted_score || 0) -
+            (a.vote_count || a.weighted_score || 0),
+        );
+        if (!sorted.length) return;
+
+        resetPodiumSlots();
+        [1, 2, 3].forEach((pos) => {
+          const item = sorted[pos - 1];
+          const slot = document.getElementById(`podium-${pos}`);
+          if (!item) {
+            if (slot) slot.style.visibility = "hidden";
+            return;
+          }
+          if (slot) slot.style.visibility = "visible";
+          const score = item.vote_count || item.weighted_score || 0;
+          document.getElementById(`podium-name-${pos}`).textContent =
+            item.name || "—";
+          document.getElementById(`podium-score-${pos}`).textContent =
+            score + " pts";
+          const av = document.getElementById(`podium-avatar-${pos}`);
+          av.innerHTML = item.image_url
+            ? `<img src="${item.image_url}">`
+            : (item.name || "?")[0].toUpperCase();
+        });
+        document.getElementById("podium-wrapper").style.display = "flex";
+
+        const strip = document.getElementById("creator-strip");
+        strip.innerHTML = "";
+        sorted.forEach((item) => {
+          const score = item.vote_count || item.weighted_score || 0;
+          const chip = document.createElement("div");
+          chip.className = "creator-chip";
+          chip.innerHTML = `
+        <div class="chip-avatar">${item.image_url ? `<img src="${item.image_url}">` : (item.name || "?")[0].toUpperCase()}</div>
+        <div>
+          <div class="chip-name">${item.name || "—"}</div>
+          <div class="chip-score">♦ ${score}</div>
+        </div>`;
+          strip.appendChild(chip);
+        });
+        strip.style.display = "flex";
+
+        const rows = document.getElementById("ranked-rows");
+        rows.innerHTML = "";
+        const deltas = ["▲", "—", "▼", "▲", "▼", "—", "▲", "▲", "▼", "—"];
+        sorted.forEach((item, i) => {
+          const score = item.vote_count || item.weighted_score || 0;
+          const delta = deltas[i % deltas.length];
+          const deltaClass =
+            delta === "▲" ? "rank-up" : delta === "▼" ? "rank-down" : "rank-eq";
+          const row = document.createElement("div");
+          row.className = "ranked-row";
+          row.dataset.id = item.id || i;
+          row.innerHTML = `
+        <span class="place">${i + 1}</span>
+        <span class="rank-delta ${deltaClass}" aria-label="Rank movement">${delta}</span>
+        <div class="r-avatar">${item.image_url ? `<img src="${item.image_url}">` : (item.name || "?")[0].toUpperCase()}</div>
+        <span class="r-name">${item.name || "—"}</span>
+        <span class="r-score">${score} pts</span>
+        <button class="r-vote-btn btn btn-ghost btn-sm${item.user_voted ? " voted" : ""}" data-id="${item.id || i}" data-vote-id="${item.user_vote_id || ""}" ${leaderboardClosed || (!item.user_voted && sorted.filter((option) => option.user_voted).length >= Number(window.currentLeaderboard?.max_votes_per_user || window._currentLeaderboard?.max_votes_per_user || 1)) ? "disabled" : ""}>${leaderboardClosed ? "Closed" : item.user_voted ? "Unvote" : sorted.filter((option) => option.user_voted).length >= Number(window.currentLeaderboard?.max_votes_per_user || window._currentLeaderboard?.max_votes_per_user || 1) ? "Max votes" : "Vote"}</button>
+      `;
+          row
+            .querySelector(".r-vote-btn")
+            .addEventListener("click", function (e) {
+              e.stopPropagation();
+              if (leaderboardClosed) return;
+              this.disabled = true;
+              this.textContent = "Voting…";
+              if (window.toggleVote) {
+                window
+                  .toggleVote(item.id, item.user_vote_id || null)
+                  .catch(() => {
+                    this.disabled = false;
+                    this.textContent = item.user_voted ? "Unvote" : "Vote";
+                  });
+              }
+            });
+          // Click row → open option detail
+          row.addEventListener("click", (e) => {
+            if (e.target.closest(".r-vote-btn")) return;
+            if (window.openOptionDetailModal)
+              window.openOptionDetailModal(item, i + 1);
+          });
+          rows.appendChild(row);
+        });
+        document.getElementById("ranked-list").style.display = "block";
+        console.log("[buildLeaderboardView] rendered", sorted.length, "rows ✓");
+      }
+
+      new MutationObserver(() => {
+        const grid = document.getElementById("options-grid");
+        const cards = grid ? grid.querySelectorAll(".option-card") : [];
+        if (cards.length > 0) {
+          buildLeaderboardView(
+            Array.from(cards).map((card) => ({
+              name: card.querySelector("h4")?.textContent,
+              image_url: card.querySelector("img.image")?.src,
+              vote_count:
+                parseInt(card.querySelector(".vote-count")?.textContent) || 0,
+              weighted_score:
+                parseFloat(card.dataset.weightedScore || "0") || 0,
+              id: card.dataset.id,
+              user_voted: card.dataset.userVoted === "1",
+              user_vote_id: card.dataset.userVoteId || null,
+            })),
+          );
+        }
+      }).observe(document.getElementById("options-grid") || document.body, {
+        childList: true,
+      });
+
+      console.log("[index.html] all scripts ready ✓");
+    </script>
+  </body>
+</html>
