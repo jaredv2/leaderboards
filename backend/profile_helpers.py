@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Any, Dict, List
 
 from backend.config import settings
@@ -71,8 +70,10 @@ async def get_user_badges(user: Dict[str, Any]) -> List[Dict[str, Any]]:
         if badge["id"]:
             by_id[badge["id"]] = badge
 
-    if user.get("discord_id") == settings.ADMIN_DISCORD_ID:
+    is_admin = str(user.get("discord_id") or "").strip() in settings.admin_discord_ids_set
+    if is_admin:
         add_badge("dev")
+        add_badge("early_access")
 
     leaderboards = await db.fetch_one(
         "SELECT COUNT(*) as count FROM leaderboards WHERE creator_id = ? AND is_active = 1",
@@ -80,14 +81,6 @@ async def get_user_badges(user: Dict[str, Any]) -> List[Dict[str, Any]]:
     )
     if leaderboards and leaderboards["count"] > 0:
         add_badge("creator")
-
-    joined = user.get("created_at")
-    try:
-        joined_at = datetime.fromisoformat(str(joined).replace("Z", "+00:00")).replace(tzinfo=None)
-        if joined_at < datetime.fromisoformat("2026-06-01T00:00:00"):
-            add_badge("early_access")
-    except Exception:
-        pass
 
     stored = await db.fetch_all(
         "SELECT badge_id, awarded_at FROM user_badges WHERE user_id = ?",

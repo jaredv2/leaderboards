@@ -78,7 +78,7 @@ async def get_user(user_id: int):
 async def update_my_profile(payload: UserProfileUpdate, user: dict = Depends(verify_token)):
     await db.execute(
         "UPDATE users SET bio = ?, show_activity = ? WHERE id = ?",
-        (payload.bio.strip(), 1 if payload.show_activity else 0, user["id"])
+        (payload.bio.strip(), bool(payload.show_activity), user["id"])
     )
     updated = await db.fetch_one("SELECT * FROM users WHERE id = ?", (user["id"],))
     return User(**(await serialize_user(updated)))
