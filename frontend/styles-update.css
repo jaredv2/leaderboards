@@ -1654,21 +1654,42 @@ body[data-page="leaderboard-detail"] #page-leaderboard-detail .podium-wrapper {
   #page-leaderboard-detail .detail-topbar {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 0.55rem;
+    gap: 0.45rem 0.55rem;
     overflow: visible !important;
   }
 
   #page-leaderboard-detail .detail-topbar-meta {
-    grid-column: 3;
-    grid-row: 1;
+    grid-column: 1 / -1;
+    grid-row: 2;
     min-width: 0;
-    flex-wrap: nowrap;
-    justify-content: end;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.35rem 0.45rem;
   }
 
-  #page-leaderboard-detail .detail-creator-label,
+  #page-leaderboard-detail .detail-topbar-title {
+    grid-column: 2;
+    grid-row: 1;
+    padding-right: 2.35rem;
+  }
+
+  #page-leaderboard-detail .detail-creator-label {
+    display: inline-block;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   #page-leaderboard-detail .detail-creator-link {
-    display: none !important;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  #page-leaderboard-detail .detail-actions {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.9rem;
   }
 
   .detail-actions-toggle {

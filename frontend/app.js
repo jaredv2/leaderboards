@@ -874,6 +874,14 @@ document.addEventListener("click", (event) => {
   }
 });
 
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("#detail-creator-link");
+  if (!link) return;
+  event.preventDefault();
+  const userId = link.dataset.userId;
+  if (userId) navigateTo("profile", true, { userId });
+});
+
 async function loadLeaderboardDetail(leaderboardId) {
   console.log("[detail] loadLeaderboardDetail id:", leaderboardId);
   currentLeaderboard = leaderboardId; // store raw id first
@@ -920,6 +928,7 @@ async function loadLeaderboardDetail(leaderboardId) {
       creatorName.textContent = `by ${leaderboard.creator_username || "community"}`;
     if (creatorLink) {
       creatorLink.href = `/profile/${leaderboard.creator_id}`;
+      creatorLink.dataset.userId = leaderboard.creator_id || "";
       creatorLink.style.display = "inline-flex";
     }
     if (closedNotice) {
